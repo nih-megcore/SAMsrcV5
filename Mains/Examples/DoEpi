@@ -1,0 +1,6 @@
+SAMcov -r $1 -m Spike
+SAMwts -r $1 -m Spike
+SAMepi -r $1 -m Spike
+NIFTIPeak -r $1 -m Spike
+SAMcov -r $1 -m View
+SAMwts -r $1 -m View

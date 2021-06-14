@@ -1,0 +1,23 @@
+#! /bin/sh
+
+# Start with the existing ortho_brainhull.ply, and create a mask that fills it.
+
+rm -f fill.m+orig.*
+3dSurfMask -i ortho_brainhull.ply -prefix fill -grid_parent mask+orig. -mask_only -no_dist
+
+# Smooth the (binary) mask so we'll have a nice threshold to use.
+
+3dLocalstat -nbhd 'SPHERE(5)' -stat mean fill.m+orig
+
+# Create the iso-surface at a particular isoval, and also remesh it to have
+# about the right number of vertices.
+
+IsoSurface -input localstat+orig. -isoval .25 -xform shift -remesh .086
+
+# Finally output hull.shape
+
+meshnorm -i.005 isosurface_out.ply > hull.shape
+
+# Visualize it
+
+plothull.py hull.shape

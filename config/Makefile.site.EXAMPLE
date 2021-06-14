@@ -1,0 +1,36 @@
+# Per site configuration. Rename this file to Makefile.site, select some
+# options below or add new ones, then "make clean; make" at the top level.
+
+# Adding options here is preferable to changing Makefile.config, because
+# that file is overwritten with new versions.
+
+# For 4D/BTi builds
+#CFLAGS += -DBTI
+
+# For Elekta builds (for use with FIFF2CTF)
+#CFLAGS += -DELEKTA
+
+# Change the location of the FFTW library for -lfftw3
+#CFLAGS += -I$(FFTW3_HOME)/include
+#LFLAGS += -L$(FFTW3_HOME)/lib
+#SOFLAGS += -Wl,--rpath=$(FFTW3_HOME)/lib
+
+# 32-bit build (needs 32-bit FFTW)
+#CFLAGS += -m32
+
+# Silence some warnings (Ubuntu)
+#CFLAGS += -Wno-unused-result
+
+# Shared or static libraries, i.e. LIBEXT, cannot be set here.
+# You must edit Makefile.config to change that.
+
+# You can, however, override BDIR here (see Makefile.config).
+#BDIR = $(HOME)/bin
+
+# Which BLAS to use.
+
+#BLAS = -lcblas
+
+# Where GIFTI is located.
+#GIFTIFLAGS = -I/usr/local/apps/gifticlib/1.0.9 -I/usr/local/apps/niftilib/3.0.0beta1/niftilib -DHAVE_GIFTI=1
+#GIFTILIBS = -L/usr/local/apps/gifticlib/1.0.9 -lgiftiio

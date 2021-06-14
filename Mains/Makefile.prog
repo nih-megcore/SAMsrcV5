@@ -1,0 +1,16 @@
+# PROG is passed from above, and this is executed in PROG's directory
+
+include ../../config/Makefile.local
+
+SRC = $(PROG).c
+
+all: $(PROG)
+
+$(PROG): $(PROG).o $(LIBDIR)/libsam.$(LIBEXT) $(LIBDIR)/libsig.$(LIBEXT) $(LIBDIR)/liblfu.$(LIBEXT)
+	$(CC) $(PROG).o -o $@ $(LDFLAGS)
+	size $@
+	@mkdir -p $(BDIR)
+	cp $@ $(BDIR)/$(shell ../newname.py $@)
+
+clean:
+	rm -f *~ core *.o $(PROG)

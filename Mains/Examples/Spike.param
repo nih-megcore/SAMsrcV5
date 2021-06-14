@@ -1,0 +1,14 @@
+NumMarkers	0
+CovBand		10.0	70.0
+ImageBand	10.0	70.0
+OrientBand	15.0	30.0
+Notch		TRUE
+XBounds		-11.0	11.0
+YBounds		-10.0	10.0
+ZBounds		0.0	14.0
+ImageStep	0.5
+ImageMetric	Kurtosis
+Model		Nolte	20
+TimeInt		2.0
+CovType		GLOBAL
+MRIDirectory	/data2/mri

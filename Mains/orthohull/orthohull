@@ -1,0 +1,166 @@
+#! /bin/bash
+
+usage() {
+    echo ""
+    echo "usage: orthohull [-t][-m][-q][-c] [-i<inf>] [-p surface.ply] [anat] [tags]"
+    echo ""
+    echo "The original anatomy brik defaults to 'anat', or it may be"
+    echo "specified on the command line. The original anatomy brik,"
+    echo "with the fiducial tags set, is rotated into the \"ortho\" frame."
+    echo "anat may be either an AFNI or NIFTI dataset. If NIFTI, then the tags"
+    echo "must be specified in a separate .tag file."
+    echo ""
+    echo "-p      specifies which surface to use, the default is 'ortho_brainhull.ply'."
+    echo "        Other choices are 'ortho_innerskull.ply', 'ortho_outerskull.ply',"
+    echo "        or 'ortho.ply', which corresponds to the surface of the brain."
+    echo "        See 3dSkullStrip -help for more information."
+    echo ""
+    echo "-i<inf> means the surface will be inflated outwards by the given factor."
+    echo "        The default (-i.005) inflates the surface by .5 cm, which prevents"
+    echo "        clipping. Use -i0 for no inflation."
+    echo ""
+    echo "-t      means also do Talairaching. The transform is stored in brain+tlrc."
+    echo "-m      is the same as -t but uses the MNI_caez template instead of TT_N27."
+    echo ""
+#    echo "-q      forces the output hull to be convex (for problem surfaces only)."
+#    echo ""
+    echo "-c      cleanup, just delete all output files if present and exit."
+    exit 1
+}
+
+doclean=0
+doqhull=0
+dotlrc=0
+domni=0
+doinf=0.005
+n=anat+orig
+ply=ortho_brainhull.ply
+
+while getopts cqtmi:p: arg; do
+    case $arg in
+        c) doclean=1 ;;
+#        q) doqhull=1 ;;
+        t) dotlrc=1 ;;
+        m) domni=1 ;;
+        i) doinf="$OPTARG" ;;
+        p) ply="$OPTARG" ;;
+        ?) usage ;;
+    esac
+done
+
+# This gnarly expression gets the next thing on the command line.
+s=`eval echo \\$${OPTIND}`
+if [ "$s" != "" ]; then
+    n="$s"
+
+    # Remove potential suffixes.
+
+    n=`basename $n .`
+    n=`basename $n .BRIK`
+    n=`basename $n .HEAD`
+fi
+
+tagfile=""
+t=`eval echo \\$$((OPTIND+1))`
+if [ "$t" != "" ]; then
+    tagfile="$t"
+fi
+
+# Remove intermediate files we'll make, and also the output files, if present.
+
+rm -f ortho+orig.* anatmask+orig.* mask+orig.* brain+*
+rm -f anat*.ply ortho*.ply CreateIco.* SpharmDeco.ply
+rm -f hull hull.shape ortho.shape* multisphere.shape* nolte.shape
+rm -f brain_WarpDrive.log brain.Xaff12.1D brain.Xat.1D
+
+if [ $doclean == 1 ]; then
+    exit
+fi
+
+# Orthogonalize the anatomy by aligning it to the master volume (which is ortho).
+
+echo processing $n
+d="@@libdir@@"
+if [ "$tagfile" == "" ]; then
+    3dTagalign -prefix ./ortho -master $d/master+orig $n
+else
+    3dTagalign -prefix ./ortho -master $d/master+orig -tagset $tagfile $n
+fi
+
+# Skull-strip the unrotated anatomy volume. If the file strip.cmd exists, use that
+# instead of the default.
+
+if [ -f ./strip.cmd ]; then
+    ./strip.cmd $n
+else
+    3dSkullStrip -input $n -prefix anatmask -mask_vol -skulls -o_ply anat
+fi
+
+# Now rotate the stripped skull and surfaces into the ortho space.
+# First copy over the fiducial tags.
+
+if [ "$tagfile" == "" ]; then
+    3drefit -saveatr \
+            -atrcopy $n TAGSET_NUM \
+            -atrcopy $n TAGSET_FLOATS \
+            -atrcopy $n TAGSET_LABELS \
+            anatmask+orig
+    3dTagalign -prefix ./mask -master $d/master+orig anatmask+orig
+else
+    3dTagalign -prefix ./mask -master $d/master+orig -tagset $tagfile anatmask+orig
+fi
+
+ConvertSurface -sv ortho+orig -i anat.ply -o ortho.ply
+ConvertSurface -sv ortho+orig -i anat_brainhull.ply -o ortho_brainhull.ply
+ConvertSurface -sv ortho+orig -i anat_innerskull.ply -o ortho_innerskull.ply
+ConvertSurface -sv ortho+orig -i anat_outerskull.ply -o ortho_outerskull.ply
+
+# Optionally Talairach
+
+base=TT_N27+tlrc
+if [ $domni = 1 ]; then
+    base=MNI_caez_N27+tlrc
+    dotlrc=1
+    doinf=0.004
+fi
+
+if [ $dotlrc = 1 ]; then
+    3dcalc -a ortho+orig -b mask+orig -prefix brain -expr 'a * step(b - 2.9)'
+    @auto_tlrc -base $base -input brain+orig -no_ss -pad_base 60
+fi
+
+# This step smooths the hull.
+
+CreateIcosahedron -rad 1 -ld 30 -tosphere # 9002 verts---must match 3dSkullStrip
+SpharmDeco -i CreateIco.asc -unit_sph CreateIco -i $ply -l 6 -o_ply SpharmDeco
+
+echo Creating hull.shape from smoothed $ply
+
+inf=""
+if [ $doinf != 0 ]; then
+    echo Inflating hull by $doinf.
+    inf=-i$doinf
+fi
+
+if [ $doqhull == 1 ]; then
+    meshnorm $inf -q SpharmDeco.ply > hull.shape
+else
+    meshnorm $inf SpharmDeco.ply > hull.shape
+fi
+
+ln -f -s hull.shape nolte.shape
+
+# For MultiSphere
+
+echo Creating multisphere.shape from smoothed $ply
+echo Use \'localSpheres -s `pwd`/multisphere.shape -d \$ds\' to create the multisphere model.
+
+ply2fid ortho+orig SpharmDeco.ply multisphere
+
+# to look at the surface, either
+#   surf=ortho_brainhull
+#   suma -i_ply $surf.ply
+# or
+#   afni -niml -dset ortho+orig mask+orig &
+#   suma -niml -i_ply $surf.ply -sv ortho+orig -novolreg
+# <press 't' in suma window>

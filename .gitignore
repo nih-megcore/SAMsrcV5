@@ -1,0 +1,12 @@
+*.o
+*.a
+*.so
+*~
+*.bak
+*.pyc
+*.swp
+._*
+bin/
+lib/
+config/Makefile.local
+config/Makefile.site

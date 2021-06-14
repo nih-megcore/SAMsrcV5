@@ -1,0 +1,9 @@
+NumMarkers	0
+CovBand		0.0	150.0
+ImageBand	0.0	150.0
+OrientBand	15.0	30.0
+Notch		TRUE
+ImageMetric	Power
+Model		Nolte 20
+CovType		GLOBAL
+MRIDirectory	/data2/mri

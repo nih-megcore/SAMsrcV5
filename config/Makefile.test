@@ -1,0 +1,5 @@
+include Makefile.local
+
+test_gsl: test_gsl.o
+	$(CC) test_gsl.o -o test_gsl -lgsl $(BLAS)
+	./test_gsl

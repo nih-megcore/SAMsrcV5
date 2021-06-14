@@ -1,0 +1,127 @@
+#! /usr/bin/env python
+
+from __future__ import print_function
+
+"""Convert a .ply file that is already in ortho space into a CTF-
+style .shape and .shape_info file for use with localSpheres."""
+
+import sys
+from subprocess import Popen, PIPE
+from numpy import array
+
+def fatalerr(s):
+    print(s, file = sys.stderr)
+    sys.exit(1)
+
+# Add the SAMsrc lib directory to the Python path, so we can find thd_atr.py
+
+sys.path.append("@@libdir@@")
+from thd_atr import afni_header_read
+
+# FID names:
+NASION = 'Nasion'
+LEAR = 'Left Ear'
+REAR = 'Right Ear'
+
+usage = """usage: %s ortho+orig plyfile shapefile
+Read the .ply file plyfile and create CTF style .shape and .shape_info files,
+using shapefile for the name, for use by localSpheres."""
+
+args = sys.argv[1:]
+if len(args) != 3:
+    fatalerr(usage % sys.argv[0])
+
+brikname = args[0]
+plyname = args[1]
+shapename = args[2]
+
+# Get the fiducial points from the ortho+orig header.
+
+h = afni_header_read(brikname)
+
+if 'TAGSET_NUM' not in h:
+    fatalerr("%s has no tags!" % brikname)
+
+ntags, pertag = h['TAGSET_NUM']
+f = h['TAGSET_FLOATS']
+l = h['TAGSET_LABELS']
+
+def fuzz(t):
+    if abs(t) < 1.e-8:
+        return 0.
+    return t
+
+d = {}
+for i in range(ntags):
+    tl = f[i * pertag : (i+1) * pertag]
+    d[l[i]] = [fuzz(x) for x in tl[0:3]]
+
+# Read the .ply file.
+
+f = open(plyname)
+if not next(f).startswith("ply"):
+    fatalerr("%s is not a .ply file" % plyname)
+
+# We only need the vertices.
+
+Nvert = 0
+for l in f:
+    if l.startswith("end_header"):
+        break
+    if l.startswith("element vertex"):
+        Nvert = int(l[15:].split()[0])
+if Nvert == 0:
+    fatalerr("ply header format error")
+
+# Read the .ply file and write the .shape file simultaneously.
+
+shapef = open("%s.shape" % shapename, 'w')
+
+shapef.write("%d\n" % Nvert)
+for i in range(Nvert):
+    l = next(f)
+
+    # Convert from RAI mm to PRI cm.
+
+    v = array([float(x) for x in l.split()])
+    x = v[0]
+    v[0] = -v[1]
+    v[1] = x
+    v *= .1
+
+    shapef.write("%g %g %g\n" % tuple(v))
+
+shapef.close()
+
+info = """
+MRI_Info
+{
+    VERSION:        1.00
+
+    FILENAME:       %s
+
+    // Fid. Points  Sag Cor Axi
+    NASION:         %g %g %g
+    LEFT_EAR:       %g %g %g
+    RIGHT_EAR:      %g %g %g
+
+    MM_PER_VOXEL_SAGITTAL:  1.
+    MM_PER_VOXEL_CORONAL:   1.
+    MM_PER_VOXEL_AXIAL:     1.
+
+    COORDINATES:    HEAD
+}
+"""
+
+# Convert the fiducial coordinates into slice coordinates.
+
+o = array([127., 127., 180.])
+nx, ny, nz = o - d[NASION]
+lx, ly, lz = o - d[LEAR]
+rx, ry, rz = o - d[REAR]
+
+s = info % (brikname, nx, ny, nz, lx, ly, lz, rx, ry, rz)
+
+f = open("%s.shape_info" % shapename, 'w')
+f.write(s)
+f.close()

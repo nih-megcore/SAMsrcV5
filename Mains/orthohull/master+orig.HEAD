@@ -1,0 +1,114 @@
+
+type = string-attribute
+name = HISTORY_NOTE
+count = 33
+'Orthogonalized fiducial template~
+
+type = string-attribute
+name = TYPESTRING
+count = 15
+'3DIM_HEAD_ANAT~
+
+type = string-attribute
+name = IDCODE_STRING
+count = 27
+'XYZ_qPMFDYgGP-dd9MOGoGqdkg~
+
+type = string-attribute
+name = IDCODE_DATE
+count = 25
+'Thu Sep  2 17:02:44 2004~
+
+type = integer-attribute
+name = SCENE_DATA
+count = 8
+ 0 3 0 -999 -999
+ -999 -999 -999
+
+type = string-attribute
+name = LABEL_1
+count = 5
+'zyxt~
+
+type = string-attribute
+name = LABEL_2
+count = 5
+'zyxt~
+
+type = string-attribute
+name = DATASET_NAME
+count = 5
+'zyxt~
+
+type = integer-attribute
+name = ORIENT_SPECIFIC
+count = 3
+ 3 5 1
+
+type  = float-attribute
+name  = ORIGIN
+count = 3
+           -127            180            127
+
+type  = float-attribute
+name  = DELTA
+count = 3
+              1             -1             -1
+
+type  = float-attribute
+name  = BRICK_STATS
+count = 2
+              0              0
+
+type = integer-attribute
+name = DATASET_RANK
+count = 8
+ 3 1 0 0 0
+ 0 0 0
+
+type = integer-attribute
+name = DATASET_DIMENSIONS
+count = 5
+ 256 256 256 0 0
+
+type = integer-attribute
+name = BRICK_TYPES
+count = 1
+ 0
+
+type  = float-attribute
+name  = BRICK_FLOAT_FACS
+count = 1
+              0
+
+type = string-attribute
+name = BRICK_LABS
+count = 3
+'#0~
+
+type = string-attribute
+name = BRICK_KEYWORDS
+count = 1
+'~
+
+type = string-attribute
+name = BYTEORDER_STRING
+count = 10
+'LSB_FIRST~
+
+type = integer-attribute
+name = TAGSET_NUM
+count = 2
+ 3 5
+
+type  = float-attribute
+name  = TAGSET_FLOATS
+count = 15
+              0            -90              0              0              0
+             76              0              0              0              0
+            -76              0              0              0              0
+
+type = string-attribute
+name = TAGSET_LABELS
+count = 30
+'Nasion~Left Ear~Right Ear~~~~~

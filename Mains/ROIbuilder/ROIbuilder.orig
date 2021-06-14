@@ -1,0 +1,599 @@
+#! /usr/bin/env python
+
+# ROIbuilder v20070116
+# Initial version.
+# ROIbuilder v20080119
+# Allow a template to define the grid.
+# Add a help window.
+# ROIbuilder v20090616
+# The template needs to be an absolute path.
+# Also add a clip option to the 3dfractionize command.
+# ROIbuilder v20190125
+# Support for Python3.
+# AAL atlas.
+# ROIbuilder v20200129
+# USe GTK3.
+
+import sys, os, tempfile, signal
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, Gdk
+from thd_atr import afni_header_read
+
+GLADEFILE = os.path.join(sys.path[0], "ROIbuilder.ui")
+AFNI_SUPP_ATLAS = os.path.join(sys.path[0], "SessionAtlases.niml")
+
+def gtk_main_quit(widget):
+    Gtk.main_quit()
+
+# The class that manages the main window.
+
+class ROI_builder:
+    def __init__(self):
+        glade_file = GLADEFILE
+
+        sigdict = {
+            "gtk_main_quit" : gtk_main_quit,
+            "on_atlas_changed" : self.on_atlas_changed,
+            "on_read_clicked" : self.on_read_clicked,
+            "on_generate_clicked" : self.on_generate_clicked,
+            "on_help_clicked" : self.on_help_clicked,
+            "on_help_close_clicked" : self.on_help_close_clicked,
+        }
+
+        builder = Gtk.Builder()
+        builder.add_from_file(glade_file)
+        builder.connect_signals(sigdict)
+        self.builder = builder
+
+        self.brik_prefix = self.builder.get_object("brik_prefix")
+        self.template = self.builder.get_object("template")
+        self.help_window = self.builder.get_object("help_window")
+        self.clip = self.builder.get_object("clip")
+
+        # A list of items, stored in a ListStore,
+        # rendered by a CellRenderer, and managed by a TreeView.
+
+        self.regionlist = self.builder.get_object("regionlist")
+        self.liststore = Gtk.ListStore(str)
+        self.regionlist.set_model(self.liststore)
+        #Gtk.TreeSelection.set_mode(Gtk.SelectionMode.MULTIPLE)
+        self.regionlist.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
+
+        # The renderer gets text values from column 0.
+
+        column = Gtk.TreeViewColumn(None, Gtk.CellRendererText(), text = 0)
+        self.regionlist.append_column(column)
+
+        # Set the default atlas.
+
+        self.atlas_widget = self.builder.get_object("atlas")
+        self.atlas_widget.set_active(0)
+        set_liststore(self.liststore, Atlas)
+
+    def on_atlas_changed(self, widget):
+        global Atlas_name, Atlas
+
+        i = self.atlas_widget.get_active()
+        if i == 0:
+            Atlas_name = TT_Atlas_name
+        elif i == 1:
+            Atlas_name = AAL_Atlas_name
+        Atlas = Atlases[Atlas_name]
+        set_liststore(self.liststore, Atlas)
+
+    def on_read_clicked(self, widget):
+        read_afni_brik(self)
+
+    def on_generate_clicked(self, widget):
+        generate_afni_brik(self)
+
+    def on_help_clicked(self, widget):
+        self.help_window.show()
+
+    def on_help_close_clicked(self, widget):
+        self.help_window.hide()
+
+# This list was extracted from afni_src/thd_ttatlas_query.c
+
+TT_Atlas = """
+Left  Hippocampus
+Right Hippocampus
+Left  Amygdala
+Right Amygdala
+Left  Posterior Cingulate
+Right Posterior Cingulate
+Left  Anterior Cingulate
+Right Anterior Cingulate
+Left  Subcallosal Gyrus
+Right Subcallosal Gyrus
+Left  Transverse Temporal Gyrus
+Right Transverse Temporal Gyrus
+Left  Uncus
+Right Uncus
+Left  Rectal Gyrus
+Right Rectal Gyrus
+Left  Fusiform Gyrus
+Right Fusiform Gyrus
+Left  Inferior Occipital Gyrus
+Right Inferior Occipital Gyrus
+Left  Inferior Temporal Gyrus
+Right Inferior Temporal Gyrus
+Left  Insula
+Right Insula
+Left  Parahippocampal Gyrus
+Right Parahippocampal Gyrus
+Left  Lingual Gyrus
+Right Lingual Gyrus
+Left  Middle Occipital Gyrus
+Right Middle Occipital Gyrus
+Left  Orbital Gyrus
+Right Orbital Gyrus
+Left  Middle Temporal Gyrus
+Right Middle Temporal Gyrus
+Left  Superior Temporal Gyrus
+Right Superior Temporal Gyrus
+Left  Superior Occipital Gyrus
+Right Superior Occipital Gyrus
+Left  Inferior Frontal Gyrus
+Right Inferior Frontal Gyrus
+Left  Cuneus
+Right Cuneus
+Left  Angular Gyrus
+Right Angular Gyrus
+Left  Supramarginal Gyrus
+Right Supramarginal Gyrus
+Left  Cingulate Gyrus
+Right Cingulate Gyrus
+Left  Inferior Parietal Lobule
+Right Inferior Parietal Lobule
+Left  Precuneus
+Right Precuneus
+Left  Superior Parietal Lobule
+Right Superior Parietal Lobule
+Left  Middle Frontal Gyrus
+Right Middle Frontal Gyrus
+Left  Paracentral Lobule
+Right Paracentral Lobule
+Left  Postcentral Gyrus
+Right Postcentral Gyrus
+Left  Precentral Gyrus
+Right Precentral Gyrus
+Left  Superior Frontal Gyrus
+Right Superior Frontal Gyrus
+Left  Medial Frontal Gyrus
+Right Medial Frontal Gyrus
+Left  Lentiform Nucleus
+Right Lentiform Nucleus
+Left  Hypothalamus
+Right Hypothalamus
+Left  Red Nucleus
+Right Red Nucleus
+Left  Substantia Nigra
+Right Substantia Nigra
+Left  Claustrum
+Right Claustrum
+Left  Thalamus
+Right Thalamus
+Left  Caudate
+Right Caudate
+Left  Caudate Tail
+Right Caudate Tail
+Left  Caudate Body
+Right Caudate Body
+Left  Caudate Head
+Right Caudate Head
+Left  Ventral Anterior Nucleus
+Right Ventral Anterior Nucleus
+Left  Ventral Posterior Medial Nucleus
+Right Ventral Posterior Medial Nucleus
+Left  Ventral Posterior Lateral Nucleus
+Right Ventral Posterior Lateral Nucleus
+Left  Medial Dorsal Nucleus
+Right Medial Dorsal Nucleus
+Left  Lateral Dorsal Nucleus
+Right Lateral Dorsal Nucleus
+Left  Pulvinar
+Right Pulvinar
+Left  Lateral Posterior Nucleus
+Right Lateral Posterior Nucleus
+Left  Ventral Lateral Nucleus
+Right Ventral Lateral Nucleus
+Left  Midline Nucleus
+Right Midline Nucleus
+Left  Anterior Nucleus
+Right Anterior Nucleus
+Left  Mammillary Body
+Right Mammillary Body
+Left  Medial Globus Pallidus
+Right Medial Globus Pallidus
+Left  Lateral Globus Pallidus
+Right Lateral Globus Pallidus
+Left  Putamen
+Right Putamen
+Left  Nucleus Accumbens
+Right Nucleus Accumbens
+Left  Medial Geniculum Body
+Right Medial Geniculum Body
+Left  Lateral Geniculum Body
+Right Lateral Geniculum Body
+Left  Subthalamic Nucleus
+Right Subthalamic Nucleus
+Left  Brodmann area 1
+Right Brodmann area 1
+Left  Brodmann area 2
+Right Brodmann area 2
+Left  Brodmann area 3
+Right Brodmann area 3
+Left  Brodmann area 4
+Right Brodmann area 4
+Left  Brodmann area 5
+Right Brodmann area 5
+Left  Brodmann area 6
+Right Brodmann area 6
+Left  Brodmann area 7
+Right Brodmann area 7
+Left  Brodmann area 8
+Right Brodmann area 8
+Left  Brodmann area 9
+Right Brodmann area 9
+Left  Brodmann area 10
+Right Brodmann area 10
+Left  Brodmann area 11
+Right Brodmann area 11
+Left  Brodmann area 13
+Right Brodmann area 13
+Left  Brodmann area 17
+Right Brodmann area 17
+Left  Brodmann area 18
+Right Brodmann area 18
+Left  Brodmann area 19
+Right Brodmann area 19
+Left  Brodmann area 20
+Right Brodmann area 20
+Left  Brodmann area 21
+Right Brodmann area 21
+Left  Brodmann area 22
+Right Brodmann area 22
+Left  Brodmann area 23
+Right Brodmann area 23
+Left  Brodmann area 24
+Right Brodmann area 24
+Left  Brodmann area 25
+Right Brodmann area 25
+Left  Brodmann area 27
+Right Brodmann area 27
+Left  Brodmann area 28
+Right Brodmann area 28
+Left  Brodmann area 29
+Right Brodmann area 29
+Left  Brodmann area 30
+Right Brodmann area 30
+Left  Brodmann area 31
+Right Brodmann area 31
+Left  Brodmann area 32
+Right Brodmann area 32
+Left  Brodmann area 33
+Right Brodmann area 33
+Left  Brodmann area 34
+Right Brodmann area 34
+Left  Brodmann area 35
+Right Brodmann area 35
+Left  Brodmann area 36
+Right Brodmann area 36
+Left  Brodmann area 37
+Right Brodmann area 37
+Left  Brodmann area 38
+Right Brodmann area 38
+Left  Brodmann area 39
+Right Brodmann area 39
+Left  Brodmann area 40
+Right Brodmann area 40
+Left  Brodmann area 41
+Right Brodmann area 41
+Left  Brodmann area 42
+Right Brodmann area 42
+Left  Brodmann area 43
+Right Brodmann area 43
+Left  Brodmann area 44
+Right Brodmann area 44
+Left  Brodmann area 45
+Right Brodmann area 45
+Left  Brodmann area 46
+Right Brodmann area 46
+Left  Brodmann area 47
+Right Brodmann area 47
+Left  Uvula of Vermis
+Right Uvula of Vermis
+Left  Pyramis of Vermis
+Right Pyramis of Vermis
+Left  Tuber of Vermis
+Right Tuber of Vermis
+Left  Declive of Vermis
+Right Declive of Vermis
+Left  Culmen of Vermis
+Right Culmen of Vermis
+Left  Cerebellar Tonsil
+Right Cerebellar Tonsil
+Left  Inferior Semi-Lunar Lobule
+Right Inferior Semi-Lunar Lobule
+Left  Fastigium
+Right Fastigium
+Left  Nodule
+Right Nodule
+Left  Uvula
+Right Uvula
+Left  Pyramis
+Right Pyramis
+Left  Culmen
+Right Culmen
+Left  Declive
+Right Declive
+Left  Dentate
+Right Dentate
+Left  Tuber
+Right Tuber
+Left  Cerebellar Lingual
+Right Cerebellar Lingual
+""".split('\n')[1:-1]
+
+# From aal.nii.txt
+
+AAL_Atlas = """
+Precentral_L
+Precentral_R
+Frontal_Sup_L
+Frontal_Sup_R
+Frontal_Sup_Orb_L
+Frontal_Sup_Orb_R
+Frontal_Mid_L
+Frontal_Mid_R
+Frontal_Mid_Orb_L
+Frontal_Mid_Orb_R
+Frontal_Inf_Oper_L
+Frontal_Inf_Oper_R
+Frontal_Inf_Tri_L
+Frontal_Inf_Tri_R
+Frontal_Inf_Orb_L
+Frontal_Inf_Orb_R
+Rolandic_Oper_L
+Rolandic_Oper_R
+Supp_Motor_Area_L
+Supp_Motor_Area_R
+Olfactory_L
+Olfactory_R
+Frontal_Sup_Medial_L
+Frontal_Sup_Medial_R
+Frontal_Mid_Orb_L
+Frontal_Mid_Orb_R
+Rectus_L
+Rectus_R
+Insula_L
+Insula_R
+Cingulum_Ant_L
+Cingulum_Ant_R
+Cingulum_Mid_L
+Cingulum_Mid_R
+Cingulum_Post_L
+Cingulum_Post_R
+Hippocampus_L
+Hippocampus_R
+ParaHippocampal_L
+ParaHippocampal_R
+Amygdala_L
+Amygdala_R
+Calcarine_L
+Calcarine_R
+Cuneus_L
+Cuneus_R
+Lingual_L
+Lingual_R
+Occipital_Sup_L
+Occipital_Sup_R
+Occipital_Mid_L
+Occipital_Mid_R
+Occipital_Inf_L
+Occipital_Inf_R
+Fusiform_L
+Fusiform_R
+Postcentral_L
+Postcentral_R
+Parietal_Sup_L
+Parietal_Sup_R
+Parietal_Inf_L
+Parietal_Inf_R
+SupraMarginal_L
+SupraMarginal_R
+Angular_L
+Angular_R
+Precuneus_L
+Precuneus_R
+Paracentral_Lobule_L
+Paracentral_Lobule_R
+Caudate_L
+Caudate_R
+Putamen_L
+Putamen_R
+Pallidum_L
+Pallidum_R
+Thalamus_L
+Thalamus_R
+Heschl_L
+Heschl_R
+Temporal_Sup_L
+Temporal_Sup_R
+Temporal_Pole_Sup_L
+Temporal_Pole_Sup_R
+Temporal_Mid_L
+Temporal_Mid_R
+Temporal_Pole_Mid_L
+Temporal_Pole_Mid_R
+Temporal_Inf_L
+Temporal_Inf_R
+Cerebelum_Crus1_L
+Cerebelum_Crus1_R
+Cerebelum_Crus2_L
+Cerebelum_Crus2_R
+Cerebelum_3_L
+Cerebelum_3_R
+Cerebelum_4_5_L
+Cerebelum_4_5_R
+Cerebelum_6_L
+Cerebelum_6_R
+Cerebelum_7b_L
+Cerebelum_7b_R
+Cerebelum_8_L
+Cerebelum_8_R
+Cerebelum_9_L
+Cerebelum_9_R
+Cerebelum_10_L
+Cerebelum_10_R
+Vermis_1_2
+Vermis_3
+Vermis_4_5
+Vermis_6
+Vermis_7
+Vermis_8
+Vermis_9
+Vermis_10
+""".split('\n')[1:-1]
+
+TT_Atlas_name = "TT_Daemon"
+AAL_Atlas_name = "AAL"
+
+Atlases = { TT_Atlas_name: TT_Atlas, AAL_Atlas_name: AAL_Atlas }
+
+# Default atlas.
+Atlas_name = TT_Atlas_name
+Atlas = Atlases[Atlas_name]
+
+whereami_cmd = "whereami -rai -mask_atlas_region %s::'%s' -prefix %s"
+thdcalc_cmd = "3dcalc -datum byte -a a+tlrc -b b+tlrc -expr 'or(a, b)' -prefix tmp 2>/dev/null"
+rm_cmd = "rm -f a+tlrc* b+tlrc*"
+rename_cmd = "3drename tmp+tlrc b 2>/dev/null"
+addnote_cmd = "3dNotes -a '%s' %s+tlrc"
+rename2_cmd = "3drename b+tlrc %s 2>/dev/null"
+gzip_cmd = "gzip %s+tlrc.BRIK"
+mv_cmd = "mv %s+tlrc.* %s"
+hist_cmd = "3dNotes -HH 'Created by ROIbuilder' %s+tlrc"
+fractionize_cmd = "3dfractionize -template %s -input b+tlrc -clip %g -prefix ./tmp"
+binmask_cmd = "3dcalc -datum byte -a b+tlrc -prefix tmp -expr 'step(a)'"
+
+notefmt = "NOTE_NUMBER_%03d"
+
+def run(cmd):
+    print(cmd)
+    os.system(cmd)
+
+def generate_afni_brik(builder):
+    prefix = builder.brik_prefix.get_text()
+    regionlist = builder.regionlist
+    template = builder.template.get_text()
+    clip = builder.clip.get_text()
+
+    if len(prefix) == 0 or '/' in prefix:
+        print("Enter a simple prefix (no /).")
+        return
+    cwd = os.getcwd()
+    if len(template) > 0 and template[0] != '/':
+        # convert template to absolute path
+        template = os.path.join(cwd, template)
+    if len(clip) == 0:
+        clip = '0'
+    try:
+        clip = float(clip)
+    except:
+        print("Using 0% for clip.")
+        clip = 0.
+
+    # Get the list of regions
+
+    s = regionlist.get_selection()
+    l = []
+    for (r,) in s.get_selected_rows()[1]:
+        l.append(Atlas[r])
+
+    if len(l) == 0:
+        return
+
+    # Work in a temporary directory.
+
+    d = tempfile.mkdtemp()
+    os.chdir(d)
+
+    # Add the supplemental atlas list to the environment.
+
+    os.environ['AFNI_SUPP_ATLAS'] = AFNI_SUPP_ATLAS
+
+    # Or together all the regions in the list. Because there might
+    # be more than 3dcalc's a-z can handle, we do them one at a time.
+
+    name = Atlas_name
+    run(whereami_cmd % (name, l[0], 'b'))   # generate initial mask in b
+    for r in l[1:]:
+        run(whereami_cmd % (name, r, 'a'))  # generate next mask in a
+        run(thdcalc_cmd)                    # or it in
+        run(rm_cmd)
+        run(rename_cmd)                     # output is b
+    if len(template) > 0:
+        run(fractionize_cmd % (template, clip)) # set grid
+        run(rm_cmd)
+        run(rename_cmd)                     # move to b
+        run(binmask_cmd)                    # make it binary
+        run(rm_cmd)
+        run(rename_cmd)                     # output is b
+    run(hist_cmd % 'b')
+    a = builder.atlas_widget.get_active()   # Save the active atlas,
+    run(addnote_cmd % (str(a), 'b'))        # so Read will work
+    for r in l:
+        run(addnote_cmd % (r, 'b'))         # list all the regions
+
+    # Create final compressed BRIK and clean up.
+
+    run(rename2_cmd % prefix)
+    run(gzip_cmd % prefix)
+    run(mv_cmd % (prefix, cwd))
+    os.chdir(cwd)
+    os.rmdir(d)
+    print("Done.")
+
+def read_afni_brik(builder):
+    global Atlas_name, Atlas
+
+    prefix = builder.brik_prefix.get_text()
+    if len(prefix) == 0:
+        return
+
+    prefix += "+tlrc"
+    d = afni_header_read(prefix)
+    s = builder.regionlist.get_selection()
+    a = d[notefmt % 1]
+    builder.atlas_widget.set_active(int(a))
+    builder.on_atlas_changed(None)
+    i = 2
+    while d.get(notefmt % i):
+        r = d[notefmt % i]
+        idx = Atlas.index(r)
+        s.select_path(idx)
+        i += 1
+
+# Set the items of a ListStore.
+
+def set_liststore(liststore, items):
+    liststore.clear()
+    for i in items:
+        liststore.append([i])
+
+if __name__ == "__main__":
+
+    # Make ctrl-C work.
+
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    # Initialize the interface.
+
+    m = ROI_builder()
+
+    # Run it.
+
+    Gtk.main()

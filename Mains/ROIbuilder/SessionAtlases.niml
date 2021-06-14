@@ -1,0 +1,8 @@
+<ATLAS
+ atlas_name="AAL"
+ dset_name="aal+tlrc"
+ template_space="TLRC"
+ description="AAL Atlas"
+ comment="Created with:
+    @MakeLabelTable -lab_file_delim -lab_file aal.nii.txt 1 0 -atlas_pointlist keys_XYZ_AXlMkTQ7NfyjCMpPNM9u-A_ -dset aal+tlrc -replace -atlas_file SessionAtlases.niml -atlas_name AAL -atlas_description AAL Atlas"
+></ATLAS>

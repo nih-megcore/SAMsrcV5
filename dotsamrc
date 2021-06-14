@@ -1,0 +1,4 @@
+Power	60Hz
+# Power	50Hz
+Filters	FFT
+# Filters IIR

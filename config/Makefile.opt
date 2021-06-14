@@ -1,0 +1,34 @@
+IFLAGS = -I$(SRCDIR)/include
+LFLAGS = -L$(LIBDIR)
+
+SAMLIBS = -lsam -lsig -llfu -lsam -lsamutil
+
+ifeq ($(LIBEXT),a)
+  CFLAGS = $(IFLAGS) -O3 -Wunused $(OMP_FLAG)
+  LIBS = $(SAMLIBS) $(SAMLIBS) -lgsl $(BLAS) -lfftw3 -lm -lsam -lsig
+  SOFLAGS =
+endif
+
+ifeq ($(LIBEXT),so)
+  CFLAGS = $(IFLAGS) -O3 -Wunused -fPIC $(OMP_FLAG)
+  LIBS = $(SAMLIBS) -lgsl $(BLAS) -lfftw3 -lm
+  SOFLAGS = -Wl,--rpath=$(LIBDIR)
+endif
+
+ifdef OMP_FLAG
+  LIBS += -lgomp
+endif
+
+ifdef OGSL
+  CFLAGS += $(OGSL)
+endif
+
+ifeq ($(HAVE_GIFTI),1)
+  CFLAGS += $(GIFTIFLAGS) -DHAVE_GIFTI=1
+  LIBS += $(GIFTILIBS)
+endif
+
+LDFLAGS = $(LFLAGS) $(LIBS) $(SOFLAGS)
+
+CC = gcc
+AR = ar

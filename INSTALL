@@ -1,0 +1,27 @@
+Installation instructions for the SAM suite.
+
+0.  Pre-requisites: gsl, gsl-devel, blas, blas-devel, fftw, and fftw-devel.
+    If you wish to use GIFTI atlases, you will also need gifticlib,
+    gifticlib-devel, nifticlib, and nifticlib-devel.
+    AFNI is optional but recommended.
+
+1.  Review the settings in config/Makefile.config. The executables will go
+    into BDIR, and library files will go into LIBDIR.
+
+1b. Also check config/Makefile.site.EXAMPLE; lines like those in that file
+    can be put into a file called config/Makefile.site which will be used
+    and not overwritten by a new version.
+
+2.  At the top level, run "make".
+
+3.  Either include the BDIR in your $PATH, or
+
+        cd config
+        make symlinks DEST=/path/to/bin
+
+    Just typing
+
+        make symlinks
+
+    will create links in $HOME/bin. The executables are already configured
+    to use the LIBDIR directory.

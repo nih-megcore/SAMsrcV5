@@ -1,0 +1,148 @@
+#! /bin/bash
+
+# Normalize SAM volumes.  This can also operate on BRIKs.
+
+# The default is to scale by the standard deviation, so that the resulting
+# BRIK has an SD of 1.  With the -z option, the mean is also removed,
+# producing z-scores. -m selects the subbrik to use as a mask.
+
+zflag=0
+vflag=0
+mindex=0
+iflag=0
+while true; do
+	case "$1" in
+		-z) zflag=1 ; shift ;;
+		-v) vflag=1 ; shift ;;
+		-m) mindex=$2 ; shift 2 ;;
+		-i) iflag=1 ; shift ;;
+		*) break ;;
+	esac
+done
+
+if [ "$zflag$iflag" == "11" ]; then
+	echo -i and -z cannot be used together
+	exit 1
+fi
+
+if [ "$#" -ne 2 ]; then
+	echo Usage: "$0 [-z] [-i] [-m subbrik] [-v] in out"
+	echo 3dNormalize scales by the SD.
+	echo -z removes the mean, producing z-scores.
+	echo For 3d+time datasets, -m specifies the subbrik
+	echo to use to generate the mask \(default 0\).
+	echo -v reports the mean and SD.
+	echo The -i option scales the positive and
+	echo negative tails independently.
+	exit 1
+fi
+in="$1"
+out="$2"
+
+# If the input exists, fine.  Otherwise, it might be something funny.
+
+name=$in
+if [ ! -f "$name" ]; then
+	# Strip off any AFNI selectors or extensions.
+	name=`echo $name | sed 's/\([^[<]*\)[[<].*[]>]$/\1/'`
+	name=`echo $name | sed 's/\.gz$//'`
+	name=`echo $name | sed 's/\.BRIK$//'`
+	name=`echo $name | sed 's/\.HEAD$//'`
+
+	# See if there's a HEAD file for this name.
+	if [ -f "${name}HEAD" ]; then
+		name="${name}HEAD"
+	elif [ -f "${name}.HEAD" ]; then
+		name="${name}.HEAD"
+	else
+		echo 1>&2 $0: unrecognized input: $in
+		exit 1
+	fi
+fi
+
+# Figure out the input's view.
+
+dir=`dirname $name`
+name=`basename $name`
+if [ $name != `basename $name .svl` ]; then
+	# .svl inputs use +orig
+	view=orig
+else
+	# Remove the .HEAD now.
+	name=`basename $name .HEAD`
+	if [ $name != `basename $name +orig` ]; then
+		view=orig
+	elif [ $name != `basename $name +acpc` ]; then
+		view=acpc
+	elif [ $name != `basename $name +tlrc` ]; then
+		view=tlrc
+	fi
+fi
+
+# See if the input is compressed.
+
+compressed=no
+if [ -f $dir/${name}.BRIK.gz ]; then
+	compressed=yes
+fi
+
+# Get the mean and s.d. across all sub-bricks.
+
+if [ "$iflag" == "1" ]; then
+	sd1=`3dmaskave -quiet -mask SELF -mindex $mindex -dump $in 2>/dev/null | \
+		grep -v '+++' | \
+		awk '{if ($1 < 0) { print $1; print -$1; }}' | \
+		1dstats -q | awk '{print $8}'`
+	sd2=`3dmaskave -quiet -mask SELF -mindex $mindex -dump $in 2>/dev/null | \
+		grep -v '+++' | \
+		awk '{if ($1 > 0) { print $1; print -$1; }}' | \
+		1dstats -q | awk '{print $8}'`
+
+	if [ "$vflag" == "1" ]; then
+		echo 1>&2 $0: ${in}: -sd is $sd1, +sd is $sd2
+	fi
+
+	# Scale the negative values with sd1, and the positive values with sd2
+
+	rm -f $out+${view}*
+	3dcalc -a $in -prefix $out -expr "\
+		(isnegative(a) * (a / $sd1)) + \
+		(ispositive(a) * (a / $sd2))"
+else
+	s=`3dmaskave -quiet -mask SELF -mindex $mindex -dump $in 2>/dev/null | \
+		grep -v '+++' | \
+		1dstats -q | awk '{print $2, $8}'`
+	read mean sd <<+
+$s
++
+
+	if [ "$vflag" == "1" ]; then
+		echo 1>&2 $0: ${in}: mean is $mean, sd is $sd
+	fi
+
+	# Quick test to see if the mean is roughly zero already.
+
+	if [ `ccalc -eval "step(abs($mean) - $sd)"` == "1" ]; then
+		if [ `ccalc -eval "step($mean - $sd)"` == "1" ]; then
+			echo 1>&2 $0: ${in}: 'sd < mean'
+		else
+			echo 1>&2 $0: ${in}: 'mean < -sd'
+		fi
+	fi
+
+	# Now convert the input to a z-score, or just scale it.
+
+	e="bool(a)*(a/$sd)"
+	if [ "$zflag" == "1" ]; then
+		e="bool(a)*(a-($mean))/$sd"
+	fi
+
+	rm -f $out+${view}*
+	3dcalc -a $in -prefix $out -expr $e
+fi
+
+# If the input was compressed, compress the output.
+
+if [ $compressed == "yes" ]; then
+	gzip $out+${view}.BRIK
+fi

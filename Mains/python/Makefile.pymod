@@ -1,0 +1,15 @@
+# Set these env vars and $(MAKE) -f Makefile.pymod
+
+# PYMODNAME = <module name>
+# PYMODCFLAGS = <-I args>
+# PYMODLIBS = <link args>
+
+py = $(shell python -c 'import sysconfig; print(sysconfig.get_path("include"))')
+npy = $(shell python -c 'import os, numpy; print(os.path.join(numpy.get_include(), "numpy"))')
+
+CFLAGS = -O2 -I$(py) -I$(npy) -fPIC $(PYMODCFLAGS) -DNPY_NO_DEPRECATED_API=NPY_API_VERSION
+
+all: $(PYMODNAME).so
+
+$(PYMODNAME).so: $(PYMODNAME).o
+	$(CC) $(PYMODCFLAGS) -shared -o $@ $(PYMODNAME).o $(PYMODLIBS)

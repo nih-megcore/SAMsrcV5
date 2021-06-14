@@ -1,0 +1,17 @@
+# Create either a static or shared lib, depending on $(LIBEXT)
+
+TARGET = $(LIB).$(LIBEXT)
+
+all: $(TARGET)
+
+$(LIB).a: $(OBJ)
+	$(AR) crs $@ $(OBJ)
+	@mkdir -p $(LIBDIR)
+	@rm -f $(LIBDIR)/$(LIB).so
+	cp $@ $(LIBDIR)
+
+$(LIB).so: $(OBJ)
+	$(CC) -o $@ -shared $(OBJ)
+	@mkdir -p $(LIBDIR)
+	@rm -f $(LIBDIR)/$(LIB).a
+	cp $@ $(LIBDIR)

@@ -1,0 +1,1173 @@
+
+type = string-attribute
+name = HISTORY_NOTE
+count = 812
+'[glend@MH02001832MACDT: Thu Oct 29 11:55:04 2015] 3dcopy aal.nii.gz aal2.nii.gz\n[glend@MH02001832MACDT: Thu Oct 29 11:58:11 2015] 3drefit -space MNI aal2.nii.gz\n[glend@MH02001832MACDT: Thu Oct 29 11:58:19 2015] 3drefit -atrstring ATLAS_LABEL_TABLE file:keys_AFN_ZnSVMd9X8rYDxVIBs8wQlg_.niml.alt aal2.nii.gz\n[glend@MH02001832MACDT: Thu Oct 29 11:58:19 2015] 3drefit -cmap INT_CMAP aal2.nii.gz\n[tomh@umiushi.nimh.nih.gov: Thu Jan 24 18:24:35 2019] 3dWarp -mni2tta -NN -prefix aal aal.nii.gz\n[tomh@umiushi.nimh.nih.gov: Thu Jan 24 18:24:51 2019] 3drefit -space TLRC aal+tlrc\n[tomh@umiushi.nimh.nih.gov: Thu Jan 24 18:24:54 2019] 3drefit -atrstring ATLAS_LABEL_TABLE file:keys_XYZ_AXlMkTQ7NfyjCMpPNM9u-A_.niml.alt aal+tlrc\n[tomh@umiushi.nimh.nih.gov: Thu Jan 24 18:24:54 2019] 3drefit -cmap INT_CMAP aal+tlrc~
+
+type = string-attribute
+name = TYPESTRING
+count = 15
+'3DIM_HEAD_ANAT~
+
+type = string-attribute
+name = IDCODE_STRING
+count = 27
+'XYZ_F3wbqd7DFj7O7Wr8dd1Tdw~
+
+type = string-attribute
+name = IDCODE_DATE
+count = 25
+'Thu Jan 24 18:24:35 2019~
+
+type = integer-attribute
+name = SCENE_DATA
+count = 8
+ 2 11 0 -999 -999
+ -999 -999 -999
+
+type = string-attribute
+name = LABEL_1
+count = 5
+'zyxt~
+
+type = string-attribute
+name = LABEL_2
+count = 5
+'zyxt~
+
+type = string-attribute
+name = DATASET_NAME
+count = 5
+'zyxt~
+
+type = integer-attribute
+name = ORIENT_SPECIFIC
+count = 3
+ 1 2 4
+
+type  = float-attribute
+name  = ORIGIN
+count = 3
+             90            125            -71
+
+type  = float-attribute
+name  = DELTA
+count = 3
+             -1             -1              1
+
+type  = float-attribute
+name  = IJK_TO_DICOM
+count = 12
+             -1              0              0             90              0
+             -1              0            125              0              0
+              1            -71
+
+type  = float-attribute
+name  = IJK_TO_DICOM_REAL
+count = 12
+             -1              0              0             90              0
+             -1              0            125              0              0
+              1            -71
+
+type  = float-attribute
+name  = BRICK_STATS
+count = 2
+              0            116
+
+type = integer-attribute
+name = DATASET_RANK
+count = 8
+ 3 1 0 0 0
+ 0 0 0
+
+type = integer-attribute
+name = DATASET_DIMENSIONS
+count = 5
+ 181 217 181 0 0
+
+type = integer-attribute
+name = BRICK_TYPES
+count = 1
+ 0
+
+type  = float-attribute
+name  = BRICK_FLOAT_FACS
+count = 1
+              0
+
+type = string-attribute
+name = BRICK_LABS
+count = 3
+'#0~
+
+type = string-attribute
+name = BRICK_KEYWORDS
+count = 1
+'~
+
+type = string-attribute
+name = TEMPLATE_SPACE
+count = 5
+'TLRC~
+
+type = integer-attribute
+name = INT_CMAP
+count = 1
+ 1
+
+type = string-attribute
+name = BYTEORDER_STRING
+count = 10
+'LSB_FIRST~
+
+type = string-attribute
+name = ATLAS_LABEL_TABLE
+count = 13683
+'<atlas_point_list
+ ni_form="ni_group">
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Precentral_L"
+ VAL="1"
+ OKEY="1"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Precentral_R"
+ VAL="2"
+ OKEY="2"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Sup_L"
+ VAL="3"
+ OKEY="3"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Sup_R"
+ VAL="4"
+ OKEY="4"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Sup_Orb_L"
+ VAL="5"
+ OKEY="5"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Sup_Orb_R"
+ VAL="6"
+ OKEY="6"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Mid_L"
+ VAL="7"
+ OKEY="7"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Mid_R"
+ VAL="8"
+ OKEY="8"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Mid_Orb_L"
+ VAL="9"
+ OKEY="9"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Mid_Orb_R"
+ VAL="10"
+ OKEY="10"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Inf_Oper_L"
+ VAL="11"
+ OKEY="11"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Inf_Oper_R"
+ VAL="12"
+ OKEY="12"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Inf_Tri_L"
+ VAL="13"
+ OKEY="13"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Inf_Tri_R"
+ VAL="14"
+ OKEY="14"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Inf_Orb_L"
+ VAL="15"
+ OKEY="15"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Inf_Orb_R"
+ VAL="16"
+ OKEY="16"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Rolandic_Oper_L"
+ VAL="17"
+ OKEY="17"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Rolandic_Oper_R"
+ VAL="18"
+ OKEY="18"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Supp_Motor_Area_L"
+ VAL="19"
+ OKEY="19"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Supp_Motor_Area_R"
+ VAL="20"
+ OKEY="20"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Olfactory_L"
+ VAL="21"
+ OKEY="21"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Olfactory_R"
+ VAL="22"
+ OKEY="22"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Sup_Medial_L"
+ VAL="23"
+ OKEY="23"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Sup_Medial_R"
+ VAL="24"
+ OKEY="24"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Mid_Orb_L"
+ VAL="25"
+ OKEY="25"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Frontal_Mid_Orb_R"
+ VAL="26"
+ OKEY="26"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Rectus_L"
+ VAL="27"
+ OKEY="27"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Rectus_R"
+ VAL="28"
+ OKEY="28"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Insula_L"
+ VAL="29"
+ OKEY="29"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Insula_R"
+ VAL="30"
+ OKEY="30"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cingulum_Ant_L"
+ VAL="31"
+ OKEY="31"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cingulum_Ant_R"
+ VAL="32"
+ OKEY="32"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cingulum_Mid_L"
+ VAL="33"
+ OKEY="33"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cingulum_Mid_R"
+ VAL="34"
+ OKEY="34"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cingulum_Post_L"
+ VAL="35"
+ OKEY="35"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cingulum_Post_R"
+ VAL="36"
+ OKEY="36"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Hippocampus_L"
+ VAL="37"
+ OKEY="37"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Hippocampus_R"
+ VAL="38"
+ OKEY="38"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="ParaHippocampal_L"
+ VAL="39"
+ OKEY="39"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="ParaHippocampal_R"
+ VAL="40"
+ OKEY="40"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Amygdala_L"
+ VAL="41"
+ OKEY="41"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Amygdala_R"
+ VAL="42"
+ OKEY="42"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Calcarine_L"
+ VAL="43"
+ OKEY="43"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Calcarine_R"
+ VAL="44"
+ OKEY="44"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cuneus_L"
+ VAL="45"
+ OKEY="45"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cuneus_R"
+ VAL="46"
+ OKEY="46"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Lingual_L"
+ VAL="47"
+ OKEY="47"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Lingual_R"
+ VAL="48"
+ OKEY="48"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Occipital_Sup_L"
+ VAL="49"
+ OKEY="49"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Occipital_Sup_R"
+ VAL="50"
+ OKEY="50"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Occipital_Mid_L"
+ VAL="51"
+ OKEY="51"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Occipital_Mid_R"
+ VAL="52"
+ OKEY="52"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Occipital_Inf_L"
+ VAL="53"
+ OKEY="53"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Occipital_Inf_R"
+ VAL="54"
+ OKEY="54"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Fusiform_L"
+ VAL="55"
+ OKEY="55"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Fusiform_R"
+ VAL="56"
+ OKEY="56"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Postcentral_L"
+ VAL="57"
+ OKEY="57"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Postcentral_R"
+ VAL="58"
+ OKEY="58"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Parietal_Sup_L"
+ VAL="59"
+ OKEY="59"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Parietal_Sup_R"
+ VAL="60"
+ OKEY="60"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Parietal_Inf_L"
+ VAL="61"
+ OKEY="61"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Parietal_Inf_R"
+ VAL="62"
+ OKEY="62"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="SupraMarginal_L"
+ VAL="63"
+ OKEY="63"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="SupraMarginal_R"
+ VAL="64"
+ OKEY="64"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Angular_L"
+ VAL="65"
+ OKEY="65"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Angular_R"
+ VAL="66"
+ OKEY="66"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Precuneus_L"
+ VAL="67"
+ OKEY="67"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Precuneus_R"
+ VAL="68"
+ OKEY="68"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Paracentral_Lobule_L"
+ VAL="69"
+ OKEY="69"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Paracentral_Lobule_R"
+ VAL="70"
+ OKEY="70"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Caudate_L"
+ VAL="71"
+ OKEY="71"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Caudate_R"
+ VAL="72"
+ OKEY="72"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Putamen_L"
+ VAL="73"
+ OKEY="73"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Putamen_R"
+ VAL="74"
+ OKEY="74"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Pallidum_L"
+ VAL="75"
+ OKEY="75"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Pallidum_R"
+ VAL="76"
+ OKEY="76"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Thalamus_L"
+ VAL="77"
+ OKEY="77"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Thalamus_R"
+ VAL="78"
+ OKEY="78"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Heschl_L"
+ VAL="79"
+ OKEY="79"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Heschl_R"
+ VAL="80"
+ OKEY="80"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Sup_L"
+ VAL="81"
+ OKEY="81"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Sup_R"
+ VAL="82"
+ OKEY="82"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Pole_Sup_L"
+ VAL="83"
+ OKEY="83"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Pole_Sup_R"
+ VAL="84"
+ OKEY="84"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Mid_L"
+ VAL="85"
+ OKEY="85"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Mid_R"
+ VAL="86"
+ OKEY="86"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Pole_Mid_L"
+ VAL="87"
+ OKEY="87"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Pole_Mid_R"
+ VAL="88"
+ OKEY="88"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Inf_L"
+ VAL="89"
+ OKEY="89"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Temporal_Inf_R"
+ VAL="90"
+ OKEY="90"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_Crus1_L"
+ VAL="91"
+ OKEY="91"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_Crus1_R"
+ VAL="92"
+ OKEY="92"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_Crus2_L"
+ VAL="93"
+ OKEY="93"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_Crus2_R"
+ VAL="94"
+ OKEY="94"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_3_L"
+ VAL="95"
+ OKEY="95"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_3_R"
+ VAL="96"
+ OKEY="96"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_4_5_L"
+ VAL="97"
+ OKEY="97"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_4_5_R"
+ VAL="98"
+ OKEY="98"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_6_L"
+ VAL="99"
+ OKEY="99"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_6_R"
+ VAL="100"
+ OKEY="100"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_7b_L"
+ VAL="101"
+ OKEY="101"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_7b_R"
+ VAL="102"
+ OKEY="102"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_8_L"
+ VAL="103"
+ OKEY="103"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_8_R"
+ VAL="104"
+ OKEY="104"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_9_L"
+ VAL="105"
+ OKEY="105"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_9_R"
+ VAL="106"
+ OKEY="106"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_10_L"
+ VAL="107"
+ OKEY="107"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Cerebelum_10_R"
+ VAL="108"
+ OKEY="108"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Vermis_1_2"
+ VAL="109"
+ OKEY="109"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Vermis_3"
+ VAL="110"
+ OKEY="110"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Vermis_4_5"
+ VAL="111"
+ OKEY="111"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Vermis_6"
+ VAL="112"
+ OKEY="112"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Vermis_7"
+ VAL="113"
+ OKEY="113"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Vermis_8"
+ VAL="114"
+ OKEY="114"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Vermis_9"
+ VAL="115"
+ OKEY="115"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+<ATLAS_POINT
+ data_type="atlas_point"
+ STRUCT="Vermis_10"
+ VAL="116"
+ OKEY="116"
+ GYoAR="0"
+ COG="0.0 0.0 0.0"
+/>
+
+</atlas_point_list>~
