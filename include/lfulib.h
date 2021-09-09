@@ -55,6 +55,7 @@ extern int ORDER;           // integration order for Nolte solutions
 // subroutines
 double  Berg(FIELD *Q, double r[3]);
 double  Coil2B(FIELD *Coil, FIELD *Sensor, double current);
+double  Coil2B_plus(FIELD *Coil, OPMFIELD *Sensor, double current);
 void    DIPLeadField(double Vc[3], gsl_matrix *L, HeaderInfo *Header, ChannelInfo *Channel, int IntOrder);
 void    DIPLeadField2D(double Vc[3], gsl_matrix *L, HeaderInfo *Header, ChannelInfo *Channel, int IntOrder);
 void    DIPSolve(VOXELINFO *, gsl_vector *, gsl_matrix *, HeaderInfo *, ChannelInfo *, int, double *);
@@ -84,6 +85,7 @@ void    GetPatchVertices(VOXELINFO *Vertex, int NumVert, double *Vcentroid, doub
 void    LtoB(FIELD *Loop, double Pnt[3], double radius, double current, double B[3]);
 void    LUsolve(double **A, double *da, int N);
 double  MtoB(FIELD *M, FIELD *S, double);
+double  MtoB_plus(FIELD *M, OPMFIELD *S, double);
 void    NLeadField(VOXELINFO *Voxel, N_LEADFIELD *Lfld, HeaderInfo *Header, ChannelInfo *Channel, HULL *Hull, int N, int Model);
 void    NSolve3D(double **Org, double **W, gsl_matrix *Cs, gsl_matrix *Co, HeaderInfo *Header, ChannelInfo *Channel, int N, double *span);
 void    NSolveMoments(gsl_matrix *Vec, gsl_matrix *Cinv, N_LEADFIELD *L, int N, double *span);

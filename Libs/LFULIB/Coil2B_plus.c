@@ -12,9 +12,9 @@
 #include <lfulib.h>
 
 
-double  Coil2B(             // compute axial & radial magnetic fields
+double  Coil2B_plus(             // compute axial & radial magnetic fields
     FIELD   *Coil,          // position & orientation of a CTF head coil
-    FIELD   *Sensor,        // position & orientation of sensor
+    OPMFIELD   *Sensor,        // position & orientation of sensor
     double  current         // current (amperes)
 )
 {
@@ -29,6 +29,9 @@ double  Coil2B(             // compute axial & radial magnetic fields
         2.019300e-03        // loop 5 -- inner turn radius
     };
     double  sum;            // field projected on sensor vector
+    double  gain;
+    double  rtp[3];
+    double  xyz[3];
     int     i;              // loop radius index
     int     v;              // vector index
 
@@ -36,11 +39,19 @@ double  Coil2B(             // compute axial & radial magnetic fields
     for (v=X_; v<=Z_; v++)
         Pnt[v] = Sensor->p[v];
 
+    // convert sensor orientation to Cartesian coordinates
+    rtp[0]=1;
+    rtp[1]=Sensor->v[0];
+    rtp[2]=Sensor->v[1];
+    StoC(rtp,xyz);
+
+    gain = Sensor->g;
+   
     // sum radial & axial fields of each pair of loops (neglect spacing between pairs)
     for (i=0, sum=0.; i<5; i++) {
         LtoB(Coil, Pnt, radius[i], current, B);
         for (v=X_; v<=Z_; v++)      // sum projection to sensor axis
-            sum += B[v] * Sensor->v[v];
+            sum += B[v] * xyz[v];
     }
-    return(2. * sum);
+    return(2. * sum * gain);
 }

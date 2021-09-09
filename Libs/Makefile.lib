@@ -1,8 +1,11 @@
 # Create either a static or shared lib, depending on $(LIBEXT)
 
 TARGET = $(LIB).$(LIBEXT)
+INC = $(shell ls $(SRCDIR)/include/*.h)
 
 all: $(TARGET)
+
+$(OBJ): $(INC)
 
 $(LIB).a: $(OBJ)
 	$(AR) crs $@ $(OBJ)

@@ -3,10 +3,11 @@
 include ../../config/Makefile.local
 
 SRC = $(PROG).c
+INC = $(shell ls $(SRCDIR)/include/*.h)
 
 all: $(PROG)
 
-$(PROG): $(PROG).o $(LIBDIR)/libsam.$(LIBEXT) $(LIBDIR)/libsig.$(LIBEXT) $(LIBDIR)/liblfu.$(LIBEXT)
+$(PROG): $(PROG).o $(LIBDIR)/libsam.$(LIBEXT) $(LIBDIR)/libsig.$(LIBEXT) $(LIBDIR)/liblfu.$(LIBEXT) $(OBJ)
 	$(CC) $(PROG).o -o $@ $(LDFLAGS)
 	size $@
 	@mkdir -p $(BDIR)

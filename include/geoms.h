@@ -73,6 +73,13 @@ typedef struct {
 	double		v[3];				// orientation vector of field point
 } FIELD;
 
+// 'OPMFIELD' -- position & spherical orientation vector with gain 
+typedef struct {
+	double		p[3];				// position vector of field point
+	double		v[2];				// orientation angles of field point
+	double		g;				// gain of sensor
+} OPMFIELD;
+
 // 'XFORM' -- coordinate transformation data
 typedef struct {
 	double		Translate[3];		// The translation or local origin

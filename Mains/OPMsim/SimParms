@@ -1,0 +1,15 @@
+ArrayName   OPMarray16.txt
+BandReject  2.0 100.0
+OPMOffset   0.0
+NumDipoles  9
+DipMoment   50.0
+SourceEdge  50.0
+FixedGrid   TRUE
+RandomOri   TRUE
+# GainError 10.0
+# CrossTalk 10.0
+# ArcOffset 10.0
+NumNoise    5000
+BrainMax	2.0e-12
+BrainMin	1.0e-15
+BrainScale  0.5
