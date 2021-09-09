@@ -2,7 +2,7 @@ include ../config/Makefile.local
 
 #sprogs = SAMNwts SAMhfo SAMersc MUTimg NIFTIPeak SAMvs fastica SAMsim KurtSensor
 
-sprogs = SAMcov SAMwts SAM3d SAM4d SAMpower SAMcoreg SAMsimulate OPMsim OPMcal OPMcal_plus OPMstats #SAMepi #PatchWts SAMers SAM3dc ROIwts SAM4dc
+sprogs = SAMcov SAMwts SAM3d SAM4d SAMpower OPMsim #SAMepi SAMers SAM3dc SAM4dc
 
 mprogs = orthohull
 
