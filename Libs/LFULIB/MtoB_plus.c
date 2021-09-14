@@ -9,19 +9,19 @@
 #include <math.h>
 #include <geoms.h>
 #include <lfulib.h>
+#include <samlib.h>
 #include <jig.h> // for AM2 definition
 
-double  MtoB_plus(               // returns scalar field
+double  MtoB_plus(          // returns scalar field
     FIELD       *Dipole,    // magnetic dipole position & vector
-    OPMFIELD       *Sensor,    // sensor position & vector
-    double      current      // magnitude of coil current (Amperes)
-)	
-
+    OPMFIELD    *Sensor,    // sensor position & vector
+    double      current     // magnitude of coil current (Amperes)
+)
 {
     FIELD       M;          // scaled magnetic dipole
     double      B[3];       // vector magnetic field at observation point
     double      R[3];       // unit vector r -- between dipole & measurement point
-    double	xyz[3];     // cartesian vesrion of orientation
+    double      xyz[3];     // cartesian vesrion of orientation
     double      rtp[3];     // spherical version of orientation
     double      Bs;         // scalar field
     double      r;          // |r|
@@ -34,7 +34,7 @@ double  MtoB_plus(               // returns scalar field
     // copy M & scale the dipole moment vector
     for (v=X_; v<=Z_; v++) {
         M.p[v] = Dipole->p[v];
-        M.v[v] = AM2 * current * Dipole->v[v]; 
+        M.v[v] = AM2 * current * Dipole->v[v];
     }
 
     rtp[0]=1.;

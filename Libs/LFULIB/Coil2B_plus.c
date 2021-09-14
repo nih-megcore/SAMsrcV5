@@ -10,7 +10,7 @@
 #include <math.h>
 #include <geoms.h>
 #include <lfulib.h>
-
+#include <samlib.h>
 
 double  Coil2B_plus(             // compute axial & radial magnetic fields
     FIELD   *Coil,          // position & orientation of a CTF head coil
@@ -46,7 +46,7 @@ double  Coil2B_plus(             // compute axial & radial magnetic fields
     StoC(rtp,xyz);
 
     gain = Sensor->g;
-   
+
     // sum radial & axial fields of each pair of loops (neglect spacing between pairs)
     for (i=0, sum=0.; i<5; i++) {
         LtoB(Coil, Pnt, radius[i], current, B);

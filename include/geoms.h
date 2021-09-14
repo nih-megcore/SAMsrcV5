@@ -73,10 +73,10 @@ typedef struct {
 	double		v[3];				// orientation vector of field point
 } FIELD;
 
-// 'OPMFIELD' -- position & spherical orientation vector with gain 
+// 'OPMFIELD' -- position & spherical orientation vector with gain
 typedef struct {
 	double		p[3];				// position vector of field point
-	double		v[2];				// orientation angles of field point
+	double		v[3];				// orientation angles of field point
 	double		g;				// gain of sensor
 } OPMFIELD;
 
@@ -172,7 +172,7 @@ typedef struct	{
 	int			M;					// row dimension
 	int			N;					// column dimension
 	double		noise;				// noise variance (least-significant singular value)
-	double		span;				// span of singular values ('condition number')  
+	double		span;				// span of singular values ('condition number')
 } SVD;
 
 // 'SVDL' -- structure holding singular value decomposition sub-matrices
@@ -184,7 +184,7 @@ typedef struct	{
 	int			M;					// row dimension
 	int			N;					// column dimension
 	double		noise;				// noise variance (least-significant singular value)
-	double		span;				// span of singular values ('condition number')  
+	double		span;				// span of singular values ('condition number')
 } SVDL;
 
 // 'PROTO' -- prototype sensor
