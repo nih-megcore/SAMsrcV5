@@ -117,16 +117,18 @@ ConvertSurface -sv ortho+orig -i anat_outerskull.ply -o ortho_outerskull.ply
 
 # Optionally Talairach
 
-base=TT_N27+tlrc
+xx=`which afni`
+dir=`dirname $xx`
+base=$dir/TT_N27+tlrc
 if [ $domni = 1 ]; then
-    base=MNI_caez_N27+tlrc
+    base=$dir/MNI_caez_N27+tlrc
     dotlrc=1
     doinf=0.004
 fi
 
 if [ $dotlrc = 1 ]; then
     3dcalc -a ortho+orig -b mask+orig -prefix brain -expr 'a * step(b - 2.9)'
-    @auto_tlrc -base $base -input brain+orig -no_ss -pad_base 60
+    @auto_tlrc -base $base -input ./brain+orig -no_ss -pad_base 60
 fi
 
 # This step smooths the hull.
