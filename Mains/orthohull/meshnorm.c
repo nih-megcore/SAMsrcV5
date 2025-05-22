@@ -126,7 +126,7 @@ void doit(FILE *infile)
 
 void read_mesh(FILE *infile)
 {
-        int i, a, b, c;
+        int i, n, a, b, c, l[10];
         float *v, x;
         char buf[100];
         VERTEX *vp;
@@ -181,7 +181,10 @@ void read_mesh(FILE *infile)
         Triangles = new_array(TRIANGLE, Ntri);
         for (i = 0, tp = Triangles; i < Ntri; i++, tp++) {
                 fgets(buf, sizeof(buf), infile);
-                sscanf(buf, "%*d %*d %d %d %d", &a, &b, &c);
+                n = sscanf(buf, "%d %d %d %d %d %d", l, l+1, l+2, l+3, l+4, l+5);
+                a = l[n-3];
+                b = l[n-2];
+                c = l[n-1];
                 tp->vp[0] = &Verts[a];
                 tp->vp[1] = &Verts[b];
                 tp->vp[2] = &Verts[c];
