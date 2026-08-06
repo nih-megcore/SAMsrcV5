@@ -1,0 +1,39 @@
+{
+  "test_data_revision": "1d08e47c586fca21163c4e7362d409e62b1c1943",
+  "mri": {
+    "dimensions": [208, 256, 256, 1],
+    "delta": [-1.0, -1.0, 1.0],
+    "origin": [102.960999, 91.492996, -137.147995],
+    "orientation": "LPI",
+    "space": "ORIG",
+    "datum": "short",
+    "minimum": 0.0,
+    "maximum": 3697.0,
+    "tagset_num": [3, 5],
+    "tag_labels": ["Nasion", "Left Ear", "Right Ear"]
+  },
+  "ctf": {
+    "epochs": 1,
+    "primary_channels": 272,
+    "samples": 18000,
+    "sample_rate": 300.0,
+    "markers": 120,
+    "marker_counts": {
+      "stim": 103,
+      "missingstim": 17
+    }
+  },
+  "hull": {
+    "vertices": 9002
+  },
+  "covariances": {
+    "Global": {"type": 0, "segments": 1, "samples": 18000},
+    "Orient": {"type": 2, "segments": 1, "samples": 18000},
+    "Sum": {"type": 1, "segments": 102, "samples": 12240},
+    "stim": {"type": 4, "segments": 102, "samples": 12240}
+  },
+  "images": {
+    "Mean": {"mean": 4.30361, "stdev": 1.16041},
+    "Variance": {"mean": 2.76794, "stdev": 1.73154}
+  }
+}

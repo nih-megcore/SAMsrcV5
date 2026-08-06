@@ -4,13 +4,13 @@ LFLAGS = -L$(LIBDIR)
 SAMLIBS = -lsam -lsig -llfu -lsam -lsamutil
 
 ifeq ($(LIBEXT),a)
-  CFLAGS = $(IFLAGS) -O3 -Wunused $(OMP_FLAG)
+  CFLAGS = $(IFLAGS) -std=gnu17 -O3 -Wunused $(OMP_FLAG)
   LIBS = $(SAMLIBS) $(SAMLIBS) -lgsl $(BLAS) -lfftw3 -lm -lsam -lsig
   SOFLAGS =
 endif
 
 ifeq ($(LIBEXT),so)
-  CFLAGS = $(IFLAGS) -O3 -Wunused -fPIC $(OMP_FLAG)
+  CFLAGS = $(IFLAGS) -std=gnu17 -O3 -Wunused -fPIC $(OMP_FLAG)
   LIBS = $(SAMLIBS) -lgsl $(BLAS) -lfftw3 -lm
   SOFLAGS = -Wl,--rpath=$(LIBDIR)
 endif

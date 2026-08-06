@@ -1,0 +1,8 @@
+Marker stim -0.10 0.30 TRUE
+CovBand 5 70
+ImageBand 5 70
+FilterType FFT
+Notch TRUE
+CovType GLOBAL
+ImageMetric Power
+ImageDirectory images

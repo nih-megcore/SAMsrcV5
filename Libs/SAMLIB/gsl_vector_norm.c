@@ -9,6 +9,7 @@
 
 #include <math.h>
 #include <gsl/gsl_vector.h>
+#include <samutil.h>
 
 
 void    gsl_vector_norm(
@@ -92,5 +93,4 @@ double  gsl_vector_angle(
     // compute phi (angle from z-axis)
     return (atan2(sqrt(gsl_vector_get(a, 0) * gsl_vector_get(a, 0) + gsl_vector_get(a, 1) * gsl_vector_get(a, 1)), gsl_vector_get(a, 2)));
 }
-
 

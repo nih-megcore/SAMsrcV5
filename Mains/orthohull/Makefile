@@ -13,10 +13,10 @@ meshnorm: $(OBJS)
 	cp meshnorm $(BDIR)/
 
 scripts:
-	sed s.@@libdir@@.$(LIBDIR). < orthohull > $(BDIR)/orthohull
-	sed s.@@libdir@@.$(LIBDIR). < ply2fid > $(BDIR)/ply2fid
-	sed s.@@libdir@@.$(LIBDIR). < orthohull.py > $(BDIR)/orthohull.py
-	sed s.@@libdir@@.$(LIBDIR). < fiddist.py > $(BDIR)/fiddist.py
+	sed 's|@@libdir@@|$(LIBDIR)|g' < orthohull > $(BDIR)/orthohull
+	sed 's|@@libdir@@|$(LIBDIR)|g' < ply2fid > $(BDIR)/ply2fid
+	sed 's|@@libdir@@|$(LIBDIR)|g' < orthohull.py > $(BDIR)/orthohull.py
+	sed 's|@@libdir@@|$(LIBDIR)|g' < fiddist.py > $(BDIR)/fiddist.py
 	chmod +x $(BDIR)/orthohull $(BDIR)/ply2fid $(BDIR)/fiddist.py $(BDIR)/orthohull.py
 	cp plothull.py $(BDIR)
 	cp fid.py samutil.py thd_atr.py null.tag master+orig.* $(LIBDIR)/

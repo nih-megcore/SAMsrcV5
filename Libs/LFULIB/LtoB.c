@@ -22,6 +22,7 @@
 #include <math.h>
 #include <gsl/gsl_sf_ellint.h>
 #include <geoms.h>
+#include <samutil.h>
 
 #define mu0_2pi 2.0e-07     // mu0/(2*pi)
 

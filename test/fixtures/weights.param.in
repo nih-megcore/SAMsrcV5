@@ -1,0 +1,8 @@
+CovBand 5 70
+XBounds -1 1
+YBounds -1 1
+ZBounds 5 7
+ImageStep 1
+MRIDirectory @@MRI_DIRECTORY@@
+Model Nolte
+Order 8

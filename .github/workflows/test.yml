@@ -1,0 +1,122 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Unit and CLI tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache/host
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ccache libfftw3-dev libgsl-dev python3-pytest
+
+      - name: Restore compiler cache
+        uses: actions/cache@v6
+        with:
+          path: .ccache/host
+          key: ccache-host-${{ runner.os }}-${{ hashFiles('Makefile', 'config/**', 'include/**', 'Libs/**', 'Mains/**', 'test/unit/**') }}
+          restore-keys: |
+            ccache-host-${{ runner.os }}-
+
+      - name: Build and run unit tests
+        run: >-
+          make test-unit
+          CC="ccache gcc"
+          PYTEST_ARGS="--junitxml=${{ github.workspace }}/unit-junit.xml"
+
+      - name: Upload unit test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: unit-test-report
+          path: unit-junit.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  integration:
+    name: AFNI and CTF integration tests
+    needs: unit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      AFNI_IMAGE: ghcr.io/jstout211/afni:latest
+      TEST_DATA_DIR: ${{ github.workspace }}/.test-data
+      TEST_RESULTS_DIR: ${{ github.workspace }}/.test-results
+      CCACHE_HOST_DIR: ${{ github.workspace }}/.ccache/afni
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up container build cache
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build AFNI test image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: test/container/test.Dockerfile
+          build-args: AFNI_IMAGE=${{ env.AFNI_IMAGE }}
+          tags: sam2multi-afni-test:ci
+          load: true
+          pull: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Restore pinned test data
+        uses: actions/cache@v6
+        with:
+          path: .test-data
+          key: test-data-1d08e47c586fca21163c4e7362d409e62b1c1943
+
+      - name: Download and verify test data
+        run: ./test/fetch-test-data.sh
+
+      - name: Restore container compiler cache
+        uses: actions/cache@v6
+        with:
+          path: .ccache/afni
+          key: ccache-afni-${{ runner.os }}-${{ hashFiles('Makefile', 'config/**', 'include/**', 'Libs/**', 'Mains/**', 'test/integration/**') }}
+          restore-keys: |
+            ccache-afni-${{ runner.os }}-
+
+      - name: Run AFNI and CTF pipeline
+        env:
+          BUILD_TEST_IMAGE: "0"
+          CONTAINER_ENGINE: docker
+          SAM_TEST_IMAGE: sam2multi-afni-test:ci
+        run: ./test/run-container-tests.sh
+
+      - name: Add numerical summary to job output
+        if: always()
+        run: |
+          if [[ -f .test-results/pipeline-summary.json ]]; then
+            printf '### Integration numerical summary\n\n```json\n' >> "$GITHUB_STEP_SUMMARY"
+            sed -n '1,120p' .test-results/pipeline-summary.json >> "$GITHUB_STEP_SUMMARY"
+            printf '```\n' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload integration outputs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: afni-integration-results
+          path: .test-results
+          if-no-files-found: warn
+          retention-days: 14
