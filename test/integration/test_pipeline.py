@@ -135,6 +135,15 @@ def validate_hull(mri_work, dataset):
     assert normal_lengths == pytest.approx(np.ones(vertex_count), abs=2e-3)
 
 
+def hull_vertices(path):
+    lines = path.read_text().splitlines()
+    vertex_count = int(lines[0])
+    vertices = np.loadtxt(lines[1 : vertex_count + 1])
+    assert vertices.shape == (vertex_count, 6)
+    assert np.isfinite(vertices).all()
+    return vertices
+
+
 def validate_ctf_metadata(dataset_work):
     output = run(
         [ROOT / "test" / "bin" / "inspect_ctf", dataset_work],
@@ -292,3 +301,121 @@ def test_afni_ctf_pipeline(tmp_path):
     validate_ctf_metadata(dataset_work)
     validate_covariances(data_work, dataset_work)
     validate_weights_and_images(tmp_path, mri_work, data_work, dataset_work)
+
+
+@pytest.mark.slow
+def test_full_brain_5mm_beamformer(tmp_path):
+    RESULTS_ROOT.mkdir(parents=True, exist_ok=True)
+    slow_results = RESULTS_ROOT / "slow"
+    slow_results.mkdir(parents=True, exist_ok=True)
+
+    mri_work, data_work, dataset_work = copy_source_data(tmp_path)
+    dataset = mri_work / "ABABABAB_refaced+orig.HEAD"
+    validate_hull(mri_work, dataset)
+    validate_ctf_metadata(dataset_work)
+    validate_covariances(data_work, dataset_work)
+
+    mri_root = tmp_path / "subjects"
+    subject_dir = mri_root / "ABABABAB"
+    subject_dir.mkdir(parents=True)
+    hull = mri_work / "hull.shape"
+    shutil.copy2(hull, subject_dir)
+
+    vertices = hull_vertices(hull)
+    minimum = vertices[:, :3].min(axis=0) * 100.0
+    maximum = vertices[:, :3].max(axis=0) * 100.0
+    bounds = list(zip(minimum, maximum))
+
+    weights_parameter = tmp_path / "full5mm.param"
+    weights_parameter.write_text(
+        "CovBand 5 70\n"
+        f"XBounds {bounds[0][0]:.8f} {bounds[0][1]:.8f}\n"
+        f"YBounds {bounds[1][0]:.8f} {bounds[1][1]:.8f}\n"
+        f"ZBounds {bounds[2][0]:.8f} {bounds[2][1]:.8f}\n"
+        "ImageStep 0.5\n"
+        f"MRIDirectory {mri_root}\n"
+        "Model Nolte\n"
+        "Order 8\n"
+    )
+    run(
+        [
+            "sam_wts",
+            "-r",
+            dataset_work.name,
+            "-m",
+            weights_parameter,
+            "-C",
+            "airpuff",
+            "-W",
+            "full5mm",
+            "-v",
+        ],
+        data_work,
+        "slow-sam-wts",
+    )
+
+    weights_dir = dataset_work / "SAM" / "full5mm,5-70Hz"
+    weights = weights_dir / "Global.nii"
+    condition = weights_dir / "GlobalCN.dat"
+    assert weights.is_file() and condition.is_file()
+    dimensions = [int(value) for value in afni_info(weights, "-n4")]
+    assert all(size > 4 for size in dimensions[:3])
+    assert dimensions[3] == EXPECTED["ctf"]["primary_channels"]
+    deltas = [float(value) for value in afni_info(weights, "-di", "-dj", "-dk")]
+    assert np.abs(deltas) == pytest.approx([5.0, 5.0, 5.0], abs=1e-5)
+    condition_values = np.loadtxt(condition)
+    assert condition_values.size == math.prod(dimensions[:3])
+    assert np.isfinite(condition_values).all()
+
+    covariance_noise = dataset_work / "SAM" / "airpuff,5-70Hz" / "Global_Noise"
+    assert covariance_noise.is_file()
+    shutil.copy2(covariance_noise, weights_dir / "Global_Noise")
+
+    image_parameter = tmp_path / "full5mm-image.param"
+    image_parameter.write_text(
+        (FIXTURES / "image.param").read_text().replace(
+            "ImageDirectory images", f"ImageDirectory {slow_results}"
+        )
+    )
+    run(
+        [
+            "sam_3d",
+            "-r",
+            dataset_work.name,
+            "-m",
+            image_parameter,
+            "-W",
+            "full5mm",
+            "-N",
+            "full5mm",
+            "-v",
+        ],
+        data_work,
+        "slow-sam-3d",
+    )
+
+    summary = {
+        "bounds_cm": {
+            axis: [float(low), float(high)]
+            for axis, (low, high) in zip("xyz", bounds)
+        },
+        "dimensions": dimensions[:3],
+        "voxel_size_mm": [abs(value) for value in deltas],
+        "images": {},
+    }
+    for statistic in ("Mean", "Variance"):
+        path = slow_results / f"ABABABAB,full5mm,stim,3D_PWR,{statistic}.nii"
+        assert path.is_file()
+        assert [int(value) for value in afni_info(path, "-n4")] == dimensions[:3] + [1]
+        mean, standard_deviation = brick_stats(path)
+        assert mean > 0.0
+        assert standard_deviation > 0.0
+        summary["images"][statistic] = {
+            "mean": mean,
+            "stdev": standard_deviation,
+        }
+
+    shutil.copy2(hull, slow_results / "hull.shape")
+    (slow_results / "pipeline-summary.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n"
+    )

@@ -60,6 +60,21 @@ objects:
 
 The exact expectations are stored in `fixtures/expected.json`.
 
+## Optional full-brain 5 mm test
+
+`make test-slow` runs a local, opt-in extension of the real-data pipeline. It
+generates the MRI hull, computes the hull's complete X/Y/Z bounds, and runs
+`sam_wts` on a 5 mm (`ImageStep 0.5` cm) grid using all 272 MEG channels and an
+eighth-order Nolte model. It then runs `sam_3d` for the `stim` marker and
+requires finite, nonzero mean and variance images with the same full-volume
+dimensions and 5 mm voxel spacing.
+
+The generated NIfTI images, hull, numerical summary, logs, and JUnit report are
+written under `.test-results/slow/` (with logs and the report rooted in
+`.test-results/`). This test is not part of `make test` or GitHub Actions
+because it is substantially more computationally expensive than the bounded
+integration ROI.
+
 ## Automation and outputs
 
 `.github/workflows/test.yml` runs both layers on pushes, pull requests, and

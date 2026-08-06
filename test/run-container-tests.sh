@@ -8,6 +8,8 @@ readonly RESULTS_DIR="${TEST_RESULTS_DIR:-${ROOT_DIR}/.test-results}"
 readonly CCACHE_HOST_DIR="${CCACHE_HOST_DIR:-${ROOT_DIR}/.ccache/afni}"
 readonly AFNI_IMAGE="${AFNI_IMAGE:-ghcr.io/jstout211/afni:latest}"
 readonly TEST_IMAGE="${SAM_TEST_IMAGE:-sam2multi-afni-test:local}"
+readonly PYTEST_MARKER="${SAM_PYTEST_MARKER:-integration}"
+readonly TEST_REPORT="${SAM_TEST_REPORT:-integration-junit.xml}"
 
 if [[ -n "${CONTAINER_ENGINE:-}" ]]; then
     ENGINE="${CONTAINER_ENGINE}"
@@ -40,6 +42,8 @@ fi
     --env CCACHE_DIR=/ccache \
     --env TEST_DATA_DIR=/test-data \
     --env TEST_RESULTS_DIR=/results \
+    --env "SAM_PYTEST_MARKER=${PYTEST_MARKER}" \
+    --env "SAM_TEST_REPORT=${TEST_REPORT}" \
     --volume "${DATA_DIR}:/test-data:ro" \
     --volume "${RESULTS_DIR}:/results" \
     --volume "${CCACHE_HOST_DIR}:/ccache" \
@@ -48,6 +52,6 @@ fi
 cd /work
 make -j"$(nproc)" CC="ccache gcc"
 make -C test integration-build CC="ccache gcc"
-python3 -m pytest -m integration -vv \
-    --junitxml=/results/integration-junit.xml \
+python3 -m pytest -m "$SAM_PYTEST_MARKER" -vv \
+    --junitxml="/results/$SAM_TEST_REPORT" \
     test/integration'

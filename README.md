@@ -31,6 +31,16 @@ is installed):
 make test-integration
 ```
 
+Run the opt-in full-brain beamformer at 5 mm resolution locally with:
+
+```sh
+make test-slow
+```
+
+The slow test derives its volume from the MRI brain hull and writes viewable
+mean and variance NIfTI images to `.test-results/slow/`. It is deliberately
+excluded from `make test` and GitHub Actions.
+
 Set `CONTAINER_ENGINE=docker` to use Docker explicitly. Integration results,
 logs, JUnit XML, representative NIfTI files, and the generated hull are written
 to `.test-results/`. GitHub Actions runs both layers for every push and pull

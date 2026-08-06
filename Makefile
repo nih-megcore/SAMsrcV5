@@ -2,7 +2,7 @@ CONF := $(shell cd config; ./configure)
 
 include config/Makefile.local
 
-.PHONY: all clean test test-unit test-integration fetch-test-data
+.PHONY: all clean test test-unit test-integration test-slow fetch-test-data
 
 all:
 	for x in Libs Mains; do \
@@ -31,3 +31,6 @@ fetch-test-data:
 
 test-integration:
 	./test/run-container-tests.sh
+
+test-slow:
+	SAM_PYTEST_MARKER=slow SAM_TEST_REPORT=slow-junit.xml ./test/run-container-tests.sh
