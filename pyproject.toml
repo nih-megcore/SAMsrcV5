@@ -28,6 +28,7 @@ dependencies = [
   "matplotlib>=3.7",
   "nibabel>=5",
   "numpy>=1.26",
+  "pillow<12; python_version < '3.11'",
   "scipy>=1.10",
 ]
 

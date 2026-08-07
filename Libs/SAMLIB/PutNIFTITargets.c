@@ -94,8 +94,8 @@ void	PutNIFTITargets(
 	Header.srow_y[0] = 0.;		Header.srow_y[1] = 0.;		Header.srow_y[2] = 1.;		Header.srow_y[3] = 0.;
 	Header.srow_z[0] = 1.;		Header.srow_z[1] = 0.;		Header.srow_z[2] = 0.;		Header.srow_z[3] = 0.;
 
-	bcopy((void *)"SAM Coefficients", (void *)Header.intent_name, 16);
-	bcopy("n+1\0", Header.magic, 4);
+	memcpy((void *)Header.intent_name, (const void *)"SAM Coefficients", 16);
+	memcpy(Header.magic, "n+1\0", 4);
 
 	// open NIFTI file for write
 	if((fp = fopen(WgtFilePath, "wb")) == NULL)

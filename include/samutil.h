@@ -57,6 +57,8 @@ void shuffle(int *array, int n);
 
 // Environment variable access.
 
+#ifndef _WIN32
 extern char **environ;
+#endif
 
 #endif

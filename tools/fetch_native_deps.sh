@@ -12,11 +12,15 @@ fetch() {
     if [[ ! -f "${destination}" ]]; then
         curl --fail --location --retry 3 --output "${destination}" "${url}"
     fi
+    local actual
     if command -v sha512sum >/dev/null 2>&1; then
-        printf '%s  %s\n' "${expected}" "${destination}" | sha512sum --check --status
+        # Avoid GNU-only --check/--status flags: macOS runners provide a
+        # BSD-style sha512sum with a smaller command-line interface.
+        actual="$(sha512sum "${destination}" | awk '{print $1}')"
     else
-        [[ "$(shasum -a 512 "${destination}" | awk '{print $1}')" == "${expected}" ]]
+        actual="$(shasum -a 512 "${destination}" | awk '{print $1}')"
     fi
+    [[ "${actual}" == "${expected}" ]]
 }
 
 fetch \

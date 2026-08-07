@@ -114,8 +114,8 @@ void	PutNIFTIImage(
 
 	// set intent
 	len = strlen((char *)intent);
-	bcopy((void *)intent, (void *)NiiHdr.intent_name, len);
-	bcopy("n+1\0", NiiHdr.magic, 4);
+	memcpy((void *)NiiHdr.intent_name, (const void *)intent, len);
+	memcpy(NiiHdr.magic, "n+1\0", 4);
 
 	// open output file
 	if((fp = fopen(fpath, "wb")) == NULL)
