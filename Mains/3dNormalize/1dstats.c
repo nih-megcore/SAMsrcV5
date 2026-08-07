@@ -104,9 +104,10 @@ void doit(FILE *infile)
 	getstats(fp0, n, &mean, &variance, &adev);
 
 	if (Quiet) {
-		printf("%d %.*10$g %.*10$g %.*10$g %.*10$g %.*10$g %.*10$g %.*10$g %.*10$g\n",
-			n, mean, variance, sum, min, max, adev,
-			sqrt(variance), sqrt(variance) / sqrt((double)n), Prec);
+		printf("%d %.*g %.*g %.*g %.*g %.*g %.*g %.*g %.*g\n",
+			n, Prec, mean, Prec, variance, Prec, sum, Prec, min,
+			Prec, max, Prec, adev, Prec, sqrt(variance), Prec,
+			sqrt(variance) / sqrt((double)n));
 	} else {
 		printf("n = %d\nmean = %g\nvariance = %g\n", n, mean, variance);
 		printf("sum is %g\n", sum);

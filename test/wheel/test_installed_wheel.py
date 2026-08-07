@@ -10,6 +10,7 @@ from pathlib import Path
 
 import pytest
 import samsrcv5
+from samsrcv5.launcher import _native_path
 from samsrcv5.normalize import _tail_sd, _view
 
 
@@ -44,6 +45,11 @@ def test_metadata_and_resources() -> None:
         "licenses/THIRD_PARTY_NOTICES.md",
     ):
         assert root.joinpath(relative).is_file(), relative
+    if os.name == "nt":
+        package_dir = Path(samsrcv5.__file__).resolve().parent
+        dll_dir = package_dir.parent / "samsrcv5.libs"
+        assert dll_dir.is_dir()
+        assert any(dll_dir.glob("*.dll"))
 
 
 def test_all_console_entry_points_are_installed() -> None:
@@ -91,6 +97,17 @@ def test_1dstats_round_trip() -> None:
     assert result.returncode == 0
     values = [float(value) for value in result.stdout.split()]
     assert values[:4] == pytest.approx([4.0, 2.5, 5.0 / 3.0, 10.0])
+
+
+def test_windows_native_path_includes_repaired_dlls(tmp_path: Path) -> None:
+    executable = tmp_path / "site-packages/samsrcv5/_bin/sam_wts.exe"
+    executable.parent.mkdir(parents=True)
+    dll_dir = tmp_path / "site-packages/samsrcv5.libs"
+    dll_dir.mkdir()
+
+    search_path = _native_path(executable, "original-path", windows=True)
+    entries = search_path.split(os.pathsep)
+    assert entries == [str(executable.parent), str(dll_dir), "original-path"]
 
 
 def test_normalize_help_does_not_require_afni() -> None:

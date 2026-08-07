@@ -15,6 +15,20 @@ def _resource_path(*parts: str):
     return files("samsrcv5").joinpath(*parts)
 
 
+def _native_path(executable: Path, current_path: str, *, windows: bool) -> str:
+    native_paths = [str(executable.parent)]
+    if windows:
+        # delvewheel places the MinGW/OpenMP runtime DLLs beside the package
+        # directory. Its import patch affects this Python process, but DLL
+        # lookup for the executable child relies on PATH.
+        dll_dir = executable.parent.parent.parent / "samsrcv5.libs"
+        if dll_dir.is_dir():
+            native_paths.append(str(dll_dir))
+    if current_path:
+        native_paths.append(current_path)
+    return os.pathsep.join(native_paths)
+
+
 def _native(name: str) -> NoReturn:
     filename = f"{name}.exe" if os.name == "nt" else name
     resource = _resource_path("_bin", filename)
@@ -24,9 +38,9 @@ def _native(name: str) -> NoReturn:
             raise SystemExit(f"samsrcv5 installation is missing {filename}")
         argv = [str(executable), *sys.argv[1:]]
         env = os.environ.copy()
-        env["PATH"] = os.pathsep.join(
-            [str(executable.parent), env.get("PATH", "")]
-        ).rstrip(os.pathsep)
+        env["PATH"] = _native_path(
+            executable, env.get("PATH", ""), windows=os.name == "nt"
+        )
         env.setdefault("HOME", str(Path.home()))
         if os.name != "nt":
             os.execve(executable, argv, env)
