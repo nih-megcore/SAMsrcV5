@@ -39,7 +39,7 @@ gsl_matrix	*GetNIFTIWts(
 	FILE			*fp;			// file pointer
 
 	// open .nii file for read
-	if((fp = fopen(WgtFilePath, "r")) == NULL)
+	if((fp = fopen(WgtFilePath, "rb")) == NULL)
 		cleanup("can't open .nii file for read");
 
 	// read .nii header & extension

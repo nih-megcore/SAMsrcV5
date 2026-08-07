@@ -118,7 +118,7 @@ void	PutNIFTIImage(
 	bcopy("n+1\0", NiiHdr.magic, 4);
 
 	// open output file
-	if((fp = fopen(fpath, "w")) == NULL)
+	if((fp = fopen(fpath, "wb")) == NULL)
 		cleanup("can't open .nii file for write");
 
 	// write header & extension

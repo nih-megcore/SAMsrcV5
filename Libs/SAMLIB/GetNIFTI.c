@@ -32,7 +32,7 @@ void	GetNIFTI(
 	FILE			*fp;			// file pointer
 
 	// open .nii file for read
-	if((fp = fopen(ImageName, "r")) == NULL)
+	if((fp = fopen(ImageName, "rb")) == NULL)
 		cleanup("can't open nifti file for read");
 
 	// read .nii header & extension

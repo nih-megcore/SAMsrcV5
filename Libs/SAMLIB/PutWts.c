@@ -83,7 +83,7 @@ void	PutWts(
 	WgtHdr.SAMUnit = bswap_32(SAM_UNIT_COEFF);
 
 	// open legacy weight file & write ID, header, and channel index
-	if((fp = fopen(WgtPath, "w")) == NULL)
+	if((fp = fopen(WgtPath, "wb")) == NULL)
 		cleanup("can't open weight file for write");
 	if(fwrite((void *)CoeffID, 8, 1, fp) != 1)
 		cleanup("can't write ID to weight file");

@@ -313,7 +313,7 @@ main(
 
 	// open file for write
 	sprintf(fpath, "%s/%s,%s,VS_Data", ImgPath, Prefix, ParmName);
-	if((fp = fopen(fpath, "w")) == NULL)
+	if((fp = fopen(fpath, "wb")) == NULL)
 		Cleanup("can't open data file for write");
 
 	// create virtual sensor data
@@ -347,7 +347,7 @@ main(
 		fflush(stdout);
 	}
 	sprintf(fpath, "%s/%s,%s,VS_Time", ImgPath, Prefix, ParmName);
-	if((fp = fopen(fpath, "w")) == NULL)
+	if((fp = fopen(fpath, "wb")) == NULL)
 		Cleanup("can't open time file for write");
 
 	// write the time track
@@ -364,7 +364,7 @@ main(
 		fflush(stdout);
 	}
 	sprintf(fpath, "%s/%s,%s,VS_Coords", ImgPath, Prefix, ParmName);
-	if((fp = fopen(fpath, "w")) == NULL)
+	if((fp = fopen(fpath, "wb")) == NULL)
 		Cleanup("can't open time file for write");
 	i = NiiHdr.dim[1];
 	j = NiiHdr.dim[2];

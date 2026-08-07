@@ -620,7 +620,7 @@ int main(
             default:            Cleanup("ImageMetric not implemented"); break;
         }
         sprintf(fpath, "%sMean.nii", Name2);
-        if((fp = fopen(fpath, "w")) == NULL)
+        if((fp = fopen(fpath, "wb")) == NULL)
             Cleanup("can't open .nii file for write");
 
         // modify NIFTI header
@@ -655,7 +655,7 @@ int main(
             fflush(stdout);
         }
         sprintf(fpath, "%sVariance.nii", Name2);
-        if((fp = fopen(fpath, "w")) == NULL)
+        if((fp = fopen(fpath, "wb")) == NULL)
             Cleanup("can't open .nii file for write");
 
         // modify NIFTI header

@@ -872,7 +872,7 @@ int main(
                 Stats[n].SAMHeader.StepSize = Params.SAMStep;   // voxel step size (m)
         }
         sprintf(fpath, "%s/%s.fwd", SAMpath, WtsName);
-        bp = fileopen(fpath, "w");
+        bp = fileopen(fpath, "wb");
         if (fwrite((void *)FwdID, 8, 1, bp) != 1)
             Cleanup("can't write ID to forward solution file");
         if (fwrite((void *)&Stats[GLOBAL_].SAMHeader, sizeof(SAM_HDR), 1, bp) != 1)

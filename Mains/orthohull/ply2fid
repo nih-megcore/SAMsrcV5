@@ -15,7 +15,9 @@ def fatalerr(s):
 
 # Add the SAMsrc lib directory to the Python path, so we can find thd_atr.py
 
-sys.path.append("@@libdir@@")
+_legacy_libdir = "@@libdir@@"
+if not _legacy_libdir.startswith("@@"):
+    sys.path.append(_legacy_libdir)
 from thd_atr import afni_header_read
 
 # FID names:

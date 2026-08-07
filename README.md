@@ -10,6 +10,39 @@ The main webpage for the SAM suite is here:
 
 https://megcore.nih.gov/index.php?title=Source_Localization_-_SAM
 
+## Installation
+
+SAMsrcV5 5.0.0 is packaged as a platform wheel containing the compiled SAM
+programs and their FFTW/GSL runtime code. Installing a wheel does not require a
+C compiler, Make, FFTW, or GSL on the user's computer:
+
+```sh
+python -m venv .venv
+. .venv/bin/activate                # Windows: .venv\Scripts\activate
+python -m pip install samsrcv5
+```
+
+Until the wheel artifacts are published to PyPI, download the wheel matching
+your platform from the `Build wheel artifacts` GitHub Actions run and pass its
+filename to `python -m pip install`.
+
+Wheels are built for Linux x86_64/aarch64, macOS x86_64/arm64, and Windows
+AMD64. The computational commands (`sam_cov`, `sam_wts`, `sam_3d`, `sam_4d`,
+`sam_power`, `sam_simulate`, and `OPMsim`) are native programs. AFNI workflows
+such as `3dNormalize` and `orthohull` still require AFNI commands on `PATH`;
+`orthohull` also uses qhull. FreeSurfer tools and `ROIbuilder` likewise require
+FreeSurfer and PyGObject/GTK respectively.
+
+Source installations are intended for developers and still require a C17
+compiler plus FFTW and GSL development files. Set `SAM_DEPS_ROOT` to a common
+dependency prefix when they are outside standard search paths:
+
+```sh
+SAM_DEPS_ROOT=/path/to/deps python -m pip install .
+```
+
+The legacy `make` build remains supported on Unix-like development systems.
+
 ## Tests
 
 The test suite has a fast host-side unit/CLI layer and an AFNI/CTF integration
@@ -18,7 +51,7 @@ paths from `nih-megcore/TEST_ctf_data`, pinned to commit
 `1d08e47c586fca21163c4e7362d409e62b1c1943`, and verify the Git object IDs
 before use.
 
-Run the unit tests on a system with GSL, FFTW, Python, and pytest installed:
+Run the legacy unit tests on a system with GSL, FFTW, Python, and pytest installed:
 
 ```sh
 make test-unit

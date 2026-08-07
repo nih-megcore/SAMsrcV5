@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 int ParsePath(
     char *Path,                 // input path, replaced by setname
@@ -38,9 +39,14 @@ int ParsePath(
     }
     // first, determine if this is absolute or relative path
     root = NULL;
-    if (Path[0] != '/') {       // an absolute path begins with '/'
-	if ((s = getenv("PWD")) == NULL)
+    if (Path[0] != '/'
+#ifdef _WIN32
+        && Path[0] != '\\' && !(strlen(Path) > 1 && Path[1] == ':')
+#endif
+    ) {                         // otherwise resolve against the current directory
+	if (getcwd(pathname, sizeof(pathname)) == NULL)
 	    return -1;
+	s = pathname;
 	root = (char *)malloc((size_t) strlen(s) + 2);
 	strcpy(root, s);
 	strcat(root, "/");      // append a slash to root path

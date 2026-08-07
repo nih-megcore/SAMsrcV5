@@ -100,7 +100,7 @@ void GetDsInfo(
 
     // 1st, read resource file
     sprintf(PathName, "%s/%s.ds/%s.res4", Header->DsPath, Header->SetName, Header->SetName);
-    if((fin = fopen(PathName, "r")) == NULL)
+    if((fin = fopen(PathName, "rb")) == NULL)
         cleanup("'.res4' file open failed");
 
     // read & verify header label
@@ -316,7 +316,7 @@ void GetDsInfo(
 
     // attempt to read optional .eeg file
     sprintf(PathName, "%s/%s.ds/%s.eeg", Header->DsPath, Header->SetName, Header->SetName);
-    if((feeg = fopen(PathName, "r")) != NULL) {
+    if((feeg = fopen(PathName, "rb")) != NULL) {
 
         // allocate space for PeIndex
         Header->NumEEG = NumEEGs;

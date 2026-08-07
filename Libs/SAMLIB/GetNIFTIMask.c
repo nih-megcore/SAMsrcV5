@@ -30,7 +30,7 @@ void	GetNIFTIMask(
 	FILE			*fp;			// file pointer
 
 	// open .nii file for read
-	if((fp = fopen(MaskPath, "r")) == NULL)
+	if((fp = fopen(MaskPath, "rb")) == NULL)
 		cleanup("can't open nifti file for read");
 
 	// read .nii header & extension

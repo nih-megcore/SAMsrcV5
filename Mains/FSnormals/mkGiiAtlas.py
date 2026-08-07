@@ -8,7 +8,9 @@ import numpy as np
 import nibabel
 from nibabel.gifti import GiftiDataArray
 
-sys.path.append("@@libdir@@")
+_legacy_libdir = "@@libdir@@"
+if not _legacy_libdir.startswith("@@"):
+    sys.path.append(_legacy_libdir)
 from samutil import *
 
 surf = "smoothwm"                   # default surface to use

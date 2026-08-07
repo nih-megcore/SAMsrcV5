@@ -760,7 +760,7 @@ int main(
         case 2: sprintf(fpath, "%s%s-%s,%s,dERS.nii", ImgPath, Params.Marker[0].MarkName, Params.Marker[1].MarkName, Suffix); break;
         default: break;
     }
-    if((fp = fopen(fpath, "w")) == NULL)
+    if((fp = fopen(fpath, "wb")) == NULL)
         Cleanup("can't open .nii file for write");
 
     // modify NIFTI header

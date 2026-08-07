@@ -29,7 +29,7 @@ FILE *OpenDsFile(
 	if((buf = (char *)malloc((size_t)i)) == NULL)
 		allocfailed("buf");
 	sprintf(buf, "%s/%s.ds/%s.%s", Header->DsPath, Header->SetName, Header->SetName, ext);
-	f = fopen(buf, "r");
+	f = fopen(buf, "rb");
 	free(buf);
 	return f;
 }
@@ -51,7 +51,7 @@ static FILE	*OpenMeg4File(
 	} else {
 		sprintf(buf, "%s/%s.ds/%s.meg4", Header->DsPath, Header->SetName, Header->SetName);
 	}
-	f = fopen(buf, "r");
+	f = fopen(buf, "rb");
 	free(buf);
 	return f;
 }

@@ -6,7 +6,9 @@ from numpy import array, hypot
 # Add the SAMsrcV5 lib directory to the Python path,
 # so we can find thd_atr.py and the others.
 
-sys.path.append("@@libdir@@")
+_legacy_libdir = "@@libdir@@"
+if not _legacy_libdir.startswith("@@"):
+    sys.path.append(_legacy_libdir)
 from thd_atr import afni_header_read
 from fid import *
 from samutil import *

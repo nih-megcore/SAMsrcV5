@@ -16,6 +16,10 @@ config/Makefile.site
 test/bin/
 test/__pycache__/
 .pytest_cache/
+.venv/
+build/
+dist/
+wheelhouse/
 Mains/3dNormalize/1dstats
 Mains/OPMsim/OPMsim
 Mains/SAM3d/SAM3d

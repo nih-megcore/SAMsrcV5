@@ -37,7 +37,7 @@ void GetCov(
     FILE            *fin;           // input data pointer
 
     // open file for read
-    fin = fileopen(CovName, "r");
+    fin = fileopen(CovName, "rb");
     stat(CovName, &sbuf);
     if (fread((void *)Identity, 8, 1, fin) != 1)
         cleanup("can't read covariance ID");

@@ -173,6 +173,10 @@ void do_parse_args(int argc, char **argv)
     parse_file(".coregrc", FALSE);
 
     home = getenv("HOME");
+#ifdef _WIN32
+    if (!home)
+        home = getenv("USERPROFILE");
+#endif
     if (home) {
         path = new_array(char, strlen(home) + 10);
         s = strecpy(path, home);

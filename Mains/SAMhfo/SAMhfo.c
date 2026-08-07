@@ -434,7 +434,7 @@ int	main(
 		fflush(stdout);
 	}
 	sprintf(fpath, "%s/%s,%s,HFO.nii", ImgPath, Prefix, ParmName);
-	if((fp = fopen(fpath, "w")) == NULL)
+	if((fp = fopen(fpath, "wb")) == NULL)
 		Cleanup("can't open .nii file for write");
 
 	// modify NIFTI header

@@ -31,7 +31,7 @@ void PutCov(
     WriteIndex = new_arrayE(int32_t, M, "WriteIndex[]");    // make sure it's int32_t
 
     // open file for write
-    fout = fileopen(CovName, "w");
+    fout = fileopen(CovName, "wb");
     if (fwrite((void *)Identity, 8, 1, fout) != 1)
         cleanup("covariance ID string write failed");
     if (fwrite((void *)CovHeader, sizeof(COV_HDR), 1, fout) != 1)

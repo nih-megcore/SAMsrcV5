@@ -1,27 +1,40 @@
 Installation instructions for the SAM suite.
 
-0.  Pre-requisites: gsl, gsl-devel, blas, blas-devel, fftw, and fftw-devel.
-    If you wish to use GIFTI atlases, you will also need gifticlib,
-    gifticlib-devel, nifticlib, and nifticlib-devel.
-    AFNI is optional but recommended.
+Binary wheel installation (recommended)
+---------------------------------------
 
-1.  Review the settings in config/Makefile.config. The executables will go
-    into BDIR, and library files will go into LIBDIR.
+Create a virtual environment and install the wheel for your operating system
+and architecture:
 
-1b. Also check config/Makefile.site.EXAMPLE; lines like those in that file
-    can be put into a file called config/Makefile.site which will be used
-    and not overwritten by a new version.
+    python -m venv .venv
+    . .venv/bin/activate
+    python -m pip install samsrcv5
 
-2.  At the top level, run "make".
+On Windows, activate with `.venv\Scripts\activate`. A wheel installation does
+not require Make, a compiler, GSL, or FFTW. Until artifacts are published to
+PyPI, give pip the downloaded `.whl` filename instead of `samsrcv5`.
 
-3.  Either include the BDIR in your $PATH, or
+AFNI, FreeSurfer, and qhull are external applications and are not distributed
+in the wheel. ROIbuilder also requires a system GTK3/PyGObject installation.
 
-        cd config
-        make symlinks DEST=/path/to/bin
+Source installation
+-------------------
 
-    Just typing
+Source builds require CMake, Ninja or Make, a C17 compiler, GSL development
+files, and FFTW3 development files. If GSL and FFTW share a non-standard
+prefix, set `SAM_DEPS_ROOT` before installing:
 
-        make symlinks
+    SAM_DEPS_ROOT=/path/to/deps python -m pip install .
 
-    will create links in $HOME/bin. The executables are already configured
-    to use the LIBDIR directory.
+Wheel maintainers can build pinned static GSL 2.8 and FFTW 3.3.11 copies with:
+
+    SAM_DEPS_CACHE=/path/to/cache \
+    SAM_DEPS_PREFIX=/path/to/prefix \
+        tools/build_native_deps.sh
+
+Legacy Make installation
+------------------------
+
+The original Unix build remains available. Install GSL and FFTW development
+packages, review `config/Makefile.config` and optional `config/Makefile.site`,
+then run `make`. Executables are written to `bin/` and libraries to `lib/`.

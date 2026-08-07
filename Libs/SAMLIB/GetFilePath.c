@@ -82,6 +82,10 @@ void GetFilePath(char *pattern, char *path, int len, PARMINFO *p, char *name, in
 
     if (*s == '~') {
         home = getenv("HOME");
+#ifdef _WIN32
+        if (home == NULL)
+            home = getenv("USERPROFILE");
+#endif
         if (home) {
             t = strecpy(t, home);
         }

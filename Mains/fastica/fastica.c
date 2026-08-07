@@ -571,14 +571,14 @@ restart:
 		fflush(stdout);
 	}
 	sprintf(fpath, "%s/%s.meg4", DSPath, DSName);
-	if((fin = fopen(fpath, "r")) == NULL)
+	if((fin = fopen(fpath, "rb")) == NULL)
 		Cleanup("can't open '.meg4' file for read");
 	if(fread((void *)FileID, 8, 1, fin) != 1)
 		Cleanup("can't read header from '.meg4' file");
 	if(strncmp(FileID, "MEG4", 4))
 		Cleanup("unknown header ID in '.meg4' file");
 	sprintf(fpath, "%s/%s.meg4.ICA", DSPath, DSName);
-	if((fout = fopen(fpath, "w")) == NULL)
+	if((fout = fopen(fpath, "wb")) == NULL)
 		Cleanup("can't open '.meg4.ICA' file for write");
 	if(fwrite((void *)MEG4Hdr, 8, 1, fout) != 1)
 		Cleanup("can't write header to '.meg4.ICA' file");
@@ -710,14 +710,14 @@ restart:
 		fflush(stdout);
 	}
 	sprintf(fpath, "%s/%s.meg4.bak", DSPath, DSName);
-	if((fin = fopen(fpath, "r")) == NULL)
+	if((fin = fopen(fpath, "rb")) == NULL)
 		Cleanup("can't open '.meg4.bak' file for read");
 	if(fread((void *)FileID, 8, 1, fin) != 1)
 		Cleanup("can't read header from '.meg4' file");
 	if(strncmp(FileID, "MEG4", 4))
 		Cleanup("unknown header ID in '.meg4' file");
 	sprintf(fpath, "%s/%s.meg4", DSPath, DSName);
-	if((fout = fopen(fpath, "w")) == NULL)
+	if((fout = fopen(fpath, "wb")) == NULL)
 		Cleanup("can't open '.meg4' file for write");
 	if(fwrite((void *)MEG4Hdr, 8, 1, fout) != 1)
 		Cleanup("can't write header to '.meg4' file");

@@ -397,7 +397,12 @@ void run_qhull(void)
 
         /* Output the vertices in the format qhull likes. */
 
-        snprintf(pointname, sizeof(pointname), "/tmp/points.%d", getpid());
+        const char *tmpdir = getenv("TMPDIR");
+#ifdef _WIN32
+        if (tmpdir == NULL) tmpdir = getenv("TEMP");
+#endif
+        if (tmpdir == NULL) tmpdir = ".";
+        snprintf(pointname, sizeof(pointname), "%s/points.%d", tmpdir, getpid());
         outfile = fopen(pointname, "w");
         if (outfile == NULL) {
                 fatalerr("can't write %s", pointname);
@@ -411,7 +416,7 @@ void run_qhull(void)
 
         /* Run the qhull command with the right arguments. */
 
-        snprintf(hullname, sizeof(hullname), "/tmp/hull.%d", getpid());
+        snprintf(hullname, sizeof(hullname), "%s/hull.%d", tmpdir, getpid());
         snprintf(buf, sizeof(buf), "qhull QJ i < %s > %s", pointname, hullname);
         msg("computing hull\n");
         system(buf);

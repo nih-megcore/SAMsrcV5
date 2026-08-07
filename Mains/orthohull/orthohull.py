@@ -8,9 +8,14 @@ Created on Wed Mar 13 14:14:05 2019
 from __future__ import print_function
 import subprocess
 import sys
+from pathlib import Path
 
-sys.path.append("@@libdir@@")
-master = "@@libdir@@/master+orig"
+_legacy_libdir = "@@libdir@@"
+if not _legacy_libdir.startswith("@@"):
+    sys.path.append(_legacy_libdir)
+    master = str(Path(_legacy_libdir) / "master+orig")
+else:
+    master = str(Path(__file__).resolve().parent.parent / "data" / "master+orig")
 from samutil import *
 from runscript import runcmd
 from runscript import runscript

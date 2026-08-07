@@ -1,0 +1,187 @@
+name: Build wheel artifacts
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  wheels:
+    name: ${{ matrix.name }} wheel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86_64
+            runner: ubuntu-latest
+            platform: linux
+            arch: x86_64
+          - name: linux-aarch64
+            runner: ubuntu-24.04-arm
+            platform: linux
+            arch: aarch64
+          - name: macos-x86_64
+            runner: macos-15-intel
+            platform: macos
+            arch: x86_64
+          - name: macos-arm64
+            runner: macos-15
+            platform: macos
+            arch: arm64
+          - name: windows-amd64
+            runner: windows-latest
+            platform: windows
+            arch: AMD64
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Set up MinGW-w64
+        if: matrix.platform == 'windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            curl
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-ninja
+            tar
+
+      - name: Build macOS native dependencies
+        if: matrix.platform == 'macos'
+        env:
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.arch == 'arm64' && '11.0' || '10.13' }}
+          SAM_BUILD_JOBS: "3"
+          SAM_DEPS_CACHE: ${{ runner.temp }}/sam-deps-cache
+          SAM_DEPS_PREFIX: ${{ runner.temp }}/sam-deps
+        run: tools/build_native_deps.sh
+
+      - name: Build Windows native dependencies
+        if: matrix.platform == 'windows'
+        shell: msys2 {0}
+        env:
+          SAM_BUILD_JOBS: "3"
+          SAM_DEPS_CACHE: /c/sam-deps-cache
+          SAM_DEPS_PREFIX: /c/sam-deps
+        run: tools/build_native_deps.sh
+
+      - name: Install wheel builder
+        run: python -m pip install cibuildwheel==3.4.1 delvewheel
+
+      - name: Add MinGW-w64 to native PATH
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: Add-Content $env:GITHUB_PATH 'C:\msys64\mingw64\bin'
+
+      - name: Build wheel
+        env:
+          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_BEFORE_ALL_LINUX: >-
+            yum install -y curl gzip make &&
+            SAM_DEPS_CACHE=/tmp/sam-deps-cache
+            SAM_DEPS_PREFIX=/opt/sam-deps
+            SAM_BUILD_JOBS=3
+            bash {package}/tools/build_native_deps.sh
+          CIBW_ENVIRONMENT_LINUX: >-
+            SAM_DEPS_ROOT=/opt/sam-deps
+          CIBW_ENVIRONMENT_MACOS: >-
+            SAM_DEPS_ROOT=${{ runner.temp }}/sam-deps
+            MACOSX_DEPLOYMENT_TARGET=${{ matrix.arch == 'arm64' && '11.0' || '10.13' }}
+          CIBW_ENVIRONMENT_WINDOWS: >-
+            SAM_DEPS_ROOT=C:/sam-deps
+            CC=gcc
+            CMAKE_GENERATOR=Ninja
+        run: python -m cibuildwheel --output-dir wheelhouse
+
+      - name: Inspect Linux wheel dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          python -m pip install auditwheel
+          for wheel in wheelhouse/*.whl; do
+            dependencies="$(auditwheel show "$wheel")"
+            echo "$dependencies"
+            if grep -Eiq 'lib(gsl|fftw)' <<<"$dependencies"; then
+              echo "GSL or FFTW remained a shared wheel dependency" >&2
+              exit 1
+            fi
+          done
+
+      - name: Inspect macOS wheel dependencies
+        if: matrix.platform == 'macos'
+        run: |
+          python -m pip install delocate
+          for wheel in wheelhouse/*.whl; do
+            dependencies="$(delocate-listdeps "$wheel")"
+            echo "$dependencies"
+            if grep -Eiq 'lib(gsl|fftw)' <<<"$dependencies"; then
+              echo "GSL or FFTW remained a shared wheel dependency" >&2
+              exit 1
+            fi
+          done
+
+      - name: Inspect Windows wheel dependencies
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          python -m pip install delvewheel
+          Get-ChildItem wheelhouse/*.whl | ForEach-Object {
+            $dependencies = python -m delvewheel show --analyze-existing-exes $_.FullName | Out-String
+            Write-Output $dependencies
+            if ($dependencies -match '(?i)(gsl|fftw)') {
+              throw 'GSL or FFTW remained a shared wheel dependency'
+            }
+          }
+
+      - name: Upload wheel
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: samsrcv5-${{ matrix.name }}
+          path: wheelhouse/*.whl
+          if-no-files-found: warn
+          retention-days: 14
+
+  source:
+    name: Source and license artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Build and check sdist
+        run: |
+          python -m pip install build twine
+          python -m build --sdist
+          python -m twine check dist/*
+      - name: Fetch corresponding dependency source
+        env:
+          SAM_DEPS_CACHE: corresponding-source
+        run: tools/fetch_native_deps.sh
+      - name: Upload source artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: samsrcv5-corresponding-source
+          path: |
+            dist/*.tar.gz
+            corresponding-source/*.tar.gz
+            tools/build_native_deps.sh
+            tools/fetch_native_deps.sh
+            THIRD_PARTY_NOTICES.md
+          if-no-files-found: error
+          retention-days: 14

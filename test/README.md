@@ -29,6 +29,20 @@ objects:
 - the expected installed command set, help output, argument rejection, and
   `1dstats` output for a known sample.
 
+## Installed-wheel layer
+
+`test/wheel` checks distribution metadata, package data, the complete console
+script set, native help/error behavior, `1dstats`, and the Python replacement
+for `3dNormalize`. Cibuildwheel installs each repaired wheel into a clean test
+environment and runs this layer automatically. For a local wheel, run it from
+outside the checkout so the installed package cannot be shadowed:
+
+```sh
+cd /tmp
+/path/to/venv/bin/python -m pytest \
+    /path/to/SAM2MULTI/test/wheel -q --import-mode=importlib
+```
+
 ## AFNI and CTF integration layer
 
 `make test-integration` runs the following pipeline in the AFNI test image:

@@ -528,7 +528,7 @@ msg("tid = %d\n", tid);
         sprintf(fpath, "%s/%s,%s,%-d-%-dHz,PWR.nii", SAMpath, Prefix, OutName, (int)Params.ImageHP, (int)Params.ImageLP);
     else
         sprintf(fpath, "%s/%s,%s,%-d-%-dHz,PWR.nii", Params.DirName, Prefix, OutName, (int)Params.ImageHP, (int)Params.ImageLP);
-    if ((fp = fopen(fpath, "w")) == NULL)
+    if ((fp = fopen(fpath, "wb")) == NULL)
         Cleanup("can't open .nii file for write");
 
     // modify NIFTI header

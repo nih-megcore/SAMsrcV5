@@ -15,12 +15,17 @@
 # USe GTK3.
 
 import sys, os, tempfile, signal
+from pathlib import Path
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk
 
-libdir = "@@libdir@@"
-sys.path.append(libdir)
+_legacy_libdir = "@@libdir@@"
+if not _legacy_libdir.startswith("@@"):
+    libdir = _legacy_libdir
+    sys.path.append(libdir)
+else:
+    libdir = str(Path(__file__).resolve().parent.parent / "data")
 
 from thd_atr import afni_header_read
 

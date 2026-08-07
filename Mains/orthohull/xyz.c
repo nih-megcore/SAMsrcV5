@@ -3,7 +3,7 @@
 #ifndef _XYZ_C
 #define _XYZ_C
 
-#define INLINE inline
+#define INLINE static inline
 
 INLINE float *vnew(float x, float y, float z)
 {

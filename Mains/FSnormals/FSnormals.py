@@ -8,7 +8,9 @@ import struct
 import numpy as np
 from scipy.spatial import KDTree
 
-sys.path.append("@@libdir@@")
+_legacy_libdir = "@@libdir@@"
+if not _legacy_libdir.startswith("@@"):
+    sys.path.append(_legacy_libdir)
 # these are from orthohull
 from samutil import *
 from thd_atr import afni_header_read

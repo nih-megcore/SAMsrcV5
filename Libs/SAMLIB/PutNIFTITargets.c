@@ -98,7 +98,7 @@ void	PutNIFTITargets(
 	bcopy("n+1\0", Header.magic, 4);
 
 	// open NIFTI file for write
-	if((fp = fopen(WgtFilePath, "w")) == NULL)
+	if((fp = fopen(WgtFilePath, "wb")) == NULL)
 		cleanup("can't open .nii file for write");
 
 	// write header & extension

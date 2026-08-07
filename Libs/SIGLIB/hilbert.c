@@ -17,6 +17,10 @@ void set_wisfile(void)
 
     if (Wisfile) return;
     home = getenv("HOME");
+#ifdef _WIN32
+    if (!home) home = getenv("USERPROFILE");
+#endif
+    if (!home) home = ".";
     Wisfile = new_string(strlen(home) + WISLEN);
     sprintf(Wisfile, Wistemplate, home);
 }
