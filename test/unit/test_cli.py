@@ -46,12 +46,20 @@ def test_registered_program_help(program: str) -> None:
     output = result.stdout + result.stderr
     assert "Usage:" in output
     assert "Version 5.0" in output
+    assert "-i_SAMdir SAMDIR" in output
+    assert "-o_SAMdir SAMDIR" in output
 
 
 def test_bad_numeric_argument_is_rejected() -> None:
     result = run(str(BIN / "sam_cov"), "--CovBand", "bad", "70")
     assert result.returncode != 0
     assert "badly formed number" in result.stderr
+
+
+def test_sam_directory_option_requires_an_argument() -> None:
+    result = run(str(BIN / "sam_cov"), "-i_SAMdir")
+    assert result.returncode != 0
+    assert "-i_SAMdir requires an argument" in result.stderr
 
 
 def test_1dstats_known_sample() -> None:

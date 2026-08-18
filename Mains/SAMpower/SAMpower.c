@@ -103,7 +103,8 @@ int main(
     char            fpath[256];         // general path name
     char            *DSName = NULL;     // MEG dataset name
     char            DSpath[256];        // MEG dataset path
-    char            SAMpath[256];       // SAM subdirectory path
+    char            InputSAMpath[256];  // SAM input root
+    char            OutputSAMpath[256]; // SAM output root
     char            AtlasPath[256];     // atlas path
     char            WgtDir[256];        // path to weights
     char            *WtsName = NULL;    // used in weights file names
@@ -206,7 +207,12 @@ int main(
     GetDsInfo(DSName, &Header, &Channel, &Epoch, &Bad, TRUE);
     sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
 #endif
-    sprintf(SAMpath, "%s/SAM", DSpath);
+    GetSAMPath(InputSAMpath, sizeof(InputSAMpath), &Params, SAM_INPUT);
+    GetSAMPath(OutputSAMpath, sizeof(OutputSAMpath), &Params, SAM_OUTPUT);
+    if (!direxists(InputSAMpath))
+        Cleanup("can't access SAM input directory '%s'", InputSAMpath);
+    if (makedirs(OutputSAMpath) == -1)
+        Cleanup("can't create SAM output directory '%s'", OutputSAMpath);
 
     // set constants
     M = Header.NumPri;
@@ -290,7 +296,7 @@ int main(
         printf("reading Global SAM weights & noise estimate");
         fflush(stdout);
     }
-    sprintf(WgtDir, "%s/%s,%-d-%-dHz", SAMpath, WtsName, (int)Params.CovHP, (int)Params.CovLP);
+    sprintf(WgtDir, "%s/%s,%-d-%-dHz", InputSAMpath, WtsName, (int)Params.CovHP, (int)Params.CovLP);
     GetNoise(WgtDir, "Global", &Noise);
     if (Params.ImageFormat == TLRC)
         sprintf(fpath, "%s/Global_at.nii", WgtDir);
@@ -525,7 +531,7 @@ msg("tid = %d\n", tid);
 
     // create NIFTI file name
     if (!strncmp(Params.DirName, "NULL", 4))
-        sprintf(fpath, "%s/%s,%s,%-d-%-dHz,PWR.nii", SAMpath, Prefix, OutName, (int)Params.ImageHP, (int)Params.ImageLP);
+        sprintf(fpath, "%s/%s,%s,%-d-%-dHz,PWR.nii", OutputSAMpath, Prefix, OutName, (int)Params.ImageHP, (int)Params.ImageLP);
     else
         sprintf(fpath, "%s/%s,%s,%-d-%-dHz,PWR.nii", Params.DirName, Prefix, OutName, (int)Params.ImageHP, (int)Params.ImageLP);
     if ((fp = fopen(fpath, "wb")) == NULL)
@@ -559,7 +565,7 @@ msg("tid = %d\n", tid);
     fclose(fp);
 
     // that's all, folks!
-    log_params(SAMpath);
+    log_params(OutputSAMpath);
 
     if (vflg) {
         msg(" - done\n'%s' done\n", Progname);

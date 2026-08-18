@@ -128,6 +128,8 @@ void reg_std_parm()
 {
     reg_parm("help");
     reg_parm("DataSet");
+    reg_parm("InputSAMDirectory");
+    reg_parm("OutputSAMDirectory");
 #if BTI
     reg_parm("PDFName");
 #endif
@@ -1221,6 +1223,10 @@ int do_get_params(PARMINFO *Params)
                     p->ptr = t;
                 }
                 Params->DataSetName = s;
+            } else if (strcmp(key, "InputSAMDirectory") == 0) {
+                Params->InputSAMDirectory = (char *)p->ptr;
+            } else if (strcmp(key, "OutputSAMDirectory") == 0) {
+                Params->OutputSAMDirectory = (char *)p->ptr;
 #if BTI
             } else if (strcmp(key, "PDFName") == 0) {
                 s = (char *)p->ptr;

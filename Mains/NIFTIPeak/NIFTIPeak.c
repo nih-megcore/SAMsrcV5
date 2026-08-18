@@ -101,7 +101,11 @@ int	main(
     char            fpath[256];     // general path name
     char            DSName[256];    // MEG run name
     char            DSpath[256];    // dataset path
-    char            SAMDir[256];    // SAM subdirectory pathname
+    char            DefaultSAMDir[256]; // dataset-local SAM root
+    char            InputSAMDir[256];   // SAM input root
+    char            OutputSAMDir[256];  // SAM output root
+    char            *InputSAMDirectory = NULL;
+    char            *OutputSAMDirectory = NULL;
     char            NiiDir[256];    // directory for finding NIFTI files
     char            ParmName[256];  // parameter file name
     char            NiiName[256];   // SAM volume image name
@@ -120,6 +124,7 @@ int	main(
     FILE            *fp;            // maximum list file
 
     // parse command line parameters
+    parse_samdir_args(&argc, argv, &InputSAMDirectory, &OutputSAMDirectory);
     opterr = 1;		// enable error reporting
     eflg = flgcnt = 0;
     while((c = getopt_long(argc, argv, ShortOpts, LongOpts, &LongIndex)) != EOF) {
@@ -152,6 +157,8 @@ int	main(
         fprintf(stderr, "\t-m <parameter file name>\n");
         fprintf(stderr, "\t-t <image threshold value (negative value over-rides rms threshold)>\n");
         fprintf(stderr, "\t-n <limit number of maxima (default 50)>\n");
+        fprintf(stderr, "\t-i_SAMdir <SAM input directory>\n");
+        fprintf(stderr, "\t-o_SAMdir <SAM output directory>\n");
         fprintf(stderr, "\t-v -- verbose mode\n");
         exit(-1);
     }
@@ -165,7 +172,11 @@ int	main(
     // get data with sensor structures
     GetDsInfo(DSName, &Header, &Channel, &Epoch, &Bad, TRUE);
     sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
-    sprintf(SAMDir, "%s/SAM", DSpath);
+    sprintf(DefaultSAMDir, "%s/SAM", DSpath);
+    snprintf(InputSAMDir, sizeof(InputSAMDir), "%s",
+             InputSAMDirectory ? InputSAMDirectory : DefaultSAMDir);
+    snprintf(OutputSAMDir, sizeof(OutputSAMDir), "%s",
+             OutputSAMDirectory ? OutputSAMDirectory : DefaultSAMDir);
 
 	// parse analysis parameter specification file in current working directory
 	if(vflg == TRUE) {
@@ -184,17 +195,18 @@ int	main(
 	if(strncmp(Params.DirName, "NULL", 4)) {
 		sprintf(NiiDir, "%s", Params.DirName);
 	} else {
-		sprintf(NiiDir, "%s/Image", SAMDir);
+		sprintf(NiiDir, "%s/Image", InputSAMDir);
+		if (!direxists(InputSAMDir))
+			Cleanup("can't access SAM input directory '%s'", InputSAMDir);
 	}
 
 	// maxima files are written to either the dataset Max subdirectory or to the MRI subdirectory
 	if(strncmp(Params.MRIdirectory, "NULL", 4) && strncmp(Params.DirName, "NULL", 4)) {
 		sprintf(MaxDir, "%s/%s", Params.MRIdirectory, Prefix);
 	} else {
-        sprintf(MaxDir, "%s/Max", SAMDir);
-        if(mkdir(MaxDir, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
-            if(errno != EEXIST)
-                Cleanup("can't create 'Max' subdirectory");
+		sprintf(MaxDir, "%s/Max", OutputSAMDir);
+		if (makedirs(MaxDir) == -1)
+			Cleanup("can't create SAM maxima directory '%s'", MaxDir);
 	}
 
     // allocate arrays for maxima

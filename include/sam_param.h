@@ -147,6 +147,8 @@ typedef struct {
     // names & directories
     char        *ParmName;          // parameter file name without .param
     char        *DataSetName;       // input dataset
+    char        *InputSAMDirectory; // root directory for reading SAM products
+    char        *OutputSAMDirectory; // root directory for writing SAM products
     char        *DirName;           // output directory for image files
     char        *BlockName;         // marker name for block of trials
     int         NumPrefix;          // number of prefix characters

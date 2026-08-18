@@ -32,6 +32,27 @@ void GetMRIPath(char *path, int len, PARMINFO *p, char *name, int exist)
     GetFilePath(p->MRIPattern, path, len, p, name, exist);
 }
 
+// Resolve a SAM root independently for reads and writes. An explicitly
+// configured path names the root itself; otherwise retain the historic
+// <dataset>/SAM location.
+
+void GetSAMPath(char *path, int len, PARMINFO *p, int output)
+{
+    char *samdir;
+    int n;
+
+    samdir = output ? p->OutputSAMDirectory : p->InputSAMDirectory;
+    if (samdir == NULL) {
+        GetFilePath("%d/SAM", path, len, p, "", 0);
+        return;
+    }
+
+    n = snprintf(path, len, "%s", samdir);
+    if (n < 0 || n >= len) {
+        fatalerr("filename too long: %s", samdir);
+    }
+}
+
 void GetFilePath(char *pattern, char *path, int len, PARMINFO *p, char *name, int exist)
 {
     int i;

@@ -115,7 +115,8 @@ int main(
     char            fpath[256];     // general path name
     char            *DSName = NULL; // MEG dataset name
     char            DSpath[256];    // MEG dataset path
-    char            SAMpath[256];   // SAM subdirectory path
+    char            InputSAMpath[256];  // SAM input root
+    char            OutputSAMpath[256]; // SAM output root
     char            WgtDir[256];    // weight directory path name
     char            *ParmName = NULL; // parameter file name
     char            Prefix[64];     // incomplete pathname
@@ -212,7 +213,12 @@ int main(
     GetDsInfo(DSName, &Header, &Channel, &Epoch, &Bad, TRUE);
     sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
 #endif
-    sprintf(SAMpath, "%s/SAM", DSpath);
+    GetSAMPath(InputSAMpath, sizeof(InputSAMpath), &Params, SAM_INPUT);
+    GetSAMPath(OutputSAMpath, sizeof(OutputSAMpath), &Params, SAM_OUTPUT);
+    if (!direxists(InputSAMpath))
+        Cleanup("can't access SAM input directory '%s'", InputSAMpath);
+    if (makedirs(OutputSAMpath) == -1)
+        Cleanup("can't create SAM output directory '%s'", OutputSAMpath);
 
     // count data dimensions
     // set constants
@@ -286,7 +292,7 @@ int main(
             printf("reading noise covariance file");
             fflush(stdout);
         }
-        sprintf(fpath, "%s/%s,%-d-%-dHz/Noise.cov", SAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
+        sprintf(fpath, "%s/%s,%-d-%-dHz/Noise.cov", InputSAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
         Cn = gsl_matrix_alloc(M, M);
         GetCov(fpath, &CovHdr, &ChanIndex, Cn);
         nflg = TRUE;
@@ -382,7 +388,7 @@ int main(
         printf("reading weights");
         fflush(stdout);
     }
-    sprintf(WgtDir, "%s/%s,%-d-%-dHz", SAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
+    sprintf(WgtDir, "%s/%s,%-d-%-dHz", InputSAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
     switch(Params.CovType) {
 
         case GLOBAL_:       // read Global weights & Global_Noise
@@ -611,7 +617,7 @@ int main(
             fflush(stdout);
         }
         if(!strncmp(Params.DirName, "NULL", 4))
-            sprintf(Name1, "%s/%s,%s,%s,", SAMpath, Prefix, ParmName, Stats[n].Name);
+            sprintf(Name1, "%s/%s,%s,%s,", OutputSAMpath, Prefix, ParmName, Stats[n].Name);
         else
             sprintf(Name1, "%s/%s,%s,%s,", Params.DirName, Prefix, ParmName, Stats[n].Name);
         switch(Params.ImageMetric) {

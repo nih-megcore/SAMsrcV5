@@ -86,8 +86,6 @@ int	main(
 	extern int      opterr;
 	char            fpath[256];             // general path name
 	char            DSName[256];            // MEG dataset name
-	char            DSpath[256];            // MEG dataset path
-	char            SAMpath[256];           // SAM subdirectory path
 	char			ParmName[256];			// parameter file name
 	char			Name[8];				// channel name
     char            Line[256];              // line buffer
@@ -139,8 +137,6 @@ int	main(
 
 	// get data with sensor structures
 	GetDsInfo(DSName, &Header, &Channel, &Epoch, &Bad, TRUE);
-	sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
-	sprintf(SAMpath, "%s/SAM", DSpath);
 
 	// extract constants
 	E = Header.NumEpochs;

@@ -292,6 +292,123 @@ def validate_weights_and_images(work, mri_work, data_work, dataset_work):
     )
 
 
+def validate_decoupled_sam_directories(work, mri_work, data_work, dataset_work):
+    covariance_root = work / "external" / "nested" / "covariances"
+    weights_root = work / "external" / "weights"
+    images_root = work / "external" / "images"
+
+    run(
+        [
+            "sam_cov",
+            "-r",
+            dataset_work.name,
+            "-m",
+            FIXTURES / "airpuff.param",
+            "-o_SAMdir",
+            covariance_root,
+        ],
+        data_work,
+        "sam-cov-decoupled",
+    )
+    covariance_dir = covariance_root / "airpuff,5-70Hz"
+    assert (covariance_dir / "Global.cov").is_file()
+    assert (covariance_root / "sam_cov.param").is_file()
+    assert not (dataset_work / "SAM").exists()
+
+    mri_root = work / "decoupled-subjects"
+    subject_dir = mri_root / "ABABABAB"
+    subject_dir.mkdir(parents=True)
+    shutil.copy2(mri_work / "hull.shape", subject_dir)
+    weights_parameter = work / "decoupled-weights.param"
+    weights_parameter.write_text(
+        (FIXTURES / "weights.param.in").read_text().replace(
+            "@@MRI_DIRECTORY@@", str(mri_root)
+        )
+    )
+    run(
+        [
+            "sam_wts",
+            "-r",
+            dataset_work.name,
+            "-m",
+            weights_parameter,
+            "-C",
+            "airpuff",
+            "-W",
+            "airpuff",
+            "-i_SAMdir",
+            covariance_root,
+            "-o_SAMdir",
+            weights_root,
+        ],
+        data_work,
+        "sam-wts-decoupled",
+    )
+    weights_dir = weights_root / "airpuff,5-70Hz"
+    assert (weights_dir / "Global.nii").is_file()
+    assert (weights_dir / "GlobalCN.dat").is_file()
+    assert (weights_root / "sam_wts.param").is_file()
+    assert not (covariance_dir / "Global.nii").exists()
+    assert not (dataset_work / "SAM").exists()
+
+    image_parameter = work / "decoupled-image.param"
+    image_parameter.write_text(
+        (FIXTURES / "image.param").read_text().replace("ImageDirectory images\n", "")
+    )
+    run(
+        [
+            "sam_3d",
+            "-r",
+            dataset_work.name,
+            "-m",
+            image_parameter,
+            "-W",
+            "airpuff",
+            "-N",
+            "decoupled",
+            "-i_SAMdir",
+            weights_root,
+            "-o_SAMdir",
+            images_root,
+        ],
+        data_work,
+        "sam-3d-decoupled",
+    )
+    image = images_root / "ABABABAB,decoupled,stim,3D_PWR,Mean.nii"
+    assert image.is_file()
+    assert (images_root / "sam_3d.param").is_file()
+    assert not (dataset_work / "SAM").exists()
+
+    explicit_images = work / "explicit-images"
+    explicit_sam_root = work / "external" / "explicit-sam-output"
+    explicit_parameter = work / "explicit-image.param"
+    explicit_parameter.write_text(
+        (FIXTURES / "image.param").read_text().replace(
+            "ImageDirectory images", f"ImageDirectory {explicit_images}"
+        )
+        + f"InputSAMDirectory {weights_root}\n"
+        + f"OutputSAMDirectory {explicit_sam_root}\n"
+    )
+    run(
+        [
+            "sam_3d",
+            "-r",
+            dataset_work.name,
+            "-m",
+            explicit_parameter,
+            "-W",
+            "airpuff",
+            "-N",
+            "explicit",
+        ],
+        data_work,
+        "sam-3d-explicit-images",
+    )
+    assert (explicit_images / "ABABABAB,explicit,stim,3D_PWR,Mean.nii").is_file()
+    assert not list(explicit_sam_root.glob("*.nii"))
+    assert (explicit_sam_root / "sam_3d.param").is_file()
+
+
 @pytest.mark.integration
 def test_afni_ctf_pipeline(tmp_path):
     RESULTS_ROOT.mkdir(parents=True, exist_ok=True)
@@ -299,6 +416,7 @@ def test_afni_ctf_pipeline(tmp_path):
     dataset = validate_mri(mri_work)
     validate_hull(mri_work, dataset)
     validate_ctf_metadata(dataset_work)
+    validate_decoupled_sam_directories(tmp_path, mri_work, data_work, dataset_work)
     validate_covariances(data_work, dataset_work)
     validate_weights_and_images(tmp_path, mri_work, data_work, dataset_work)
 

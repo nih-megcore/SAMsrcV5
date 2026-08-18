@@ -9,6 +9,8 @@ PARM_TABLE Parm_table[] = {
     { 1, "help", "h", helpfn, NULL, "show this help", NULL },
     { 1, "verbose", "v", boolfn, NULL, "verbose output", NULL },
     { 1, "DataSet", "r", stringfn, "DSNAME", "MEG dataset name", "ds" },
+    { 1, "InputSAMDirectory", "i_SAMdir", stringfn, "SAMDIR", "SAM root directory for input products", NULL },
+    { 1, "OutputSAMDirectory", "o_SAMdir", stringfn, "SAMDIR", "SAM root directory for output products", NULL },
     { 1, "PDFName", "d", stringfn, "PDFNAME", "MEG PDF file (4D only)", "pdf" },
     { 1, "param", "m", stringfn, "PFILE", "parameter file name (optionally ending\nin \".param\")", "param" },
     { 0, "%include", NULL, includefn, "", "", NULL },
@@ -120,6 +122,8 @@ void new_params(PARMINFO *Params)
 
     // initialize parameters
     Params->DataSetName = NULL;             // argument to -r
+    Params->InputSAMDirectory = NULL;       // default is <dataset>/SAM
+    Params->OutputSAMDirectory = NULL;      // default is <dataset>/SAM
     Params->ParmName = NULL;                // basename of parameter file
     Params->NumMark = 0;                    // number of markers
     Params->Marker = NULL;                  // marker info

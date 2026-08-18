@@ -140,7 +140,11 @@ int	main(
 	char            fpath[256];             // general path name
 	char            DSName[256];            // MEG dataset name
 	char            DSpath[256];            // MEG dataset path
-	char            SAMpath[256];           // SAM subdirectory path
+	char            DefaultSAMpath[256];    // dataset-local SAM root
+	char            InputSAMpath[256];      // SAM input root
+	char            OutputSAMpath[256];     // SAM output root
+	char            *InputSAMDirectory = NULL;
+	char            *OutputSAMDirectory = NULL;
 	char			ImgPath[256];			// image path
 	char			Prefix[64];				// output file prefix
 	char			Suffix[10];				// output file suffix
@@ -176,6 +180,7 @@ int	main(
 	FILE			*np;					// noise file pointer
 
 	// parse command line parameters
+	parse_samdir_args(&argc, argv, &InputSAMDirectory, &OutputSAMDirectory);
 	opterr = 1;             // enable error reporting
 	while((c = getopt_long(argc, argv, ShortOpts, LongOpts, &LongIndex)) != EOF) {
 		switch(c) {
@@ -213,6 +218,8 @@ int	main(
 			fprintf(stderr, "SAMersc\t-r <run name>\t%s rev-%0d, %s\n", PRG_REV, MINOR_REV, __DATE__);
 #endif
 		fprintf(stderr, "\t-m <parameter file name>\n");
+		fprintf(stderr, "\t-i_SAMdir <SAM input directory>\n");
+		fprintf(stderr, "\t-o_SAMdir <SAM output directory>\n");
 		fprintf(stderr, "\t-a -- absolute voxel values\n");
 		fprintf(stderr, "\t-v -- verbose mode\n");
 		exit(-1);
@@ -235,7 +242,15 @@ int	main(
 	GetDsInfo(DSName, &Header, &Channel, &Epoch, &Bad, TRUE);
 	sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
 #endif
-	sprintf(SAMpath, "%s/SAM", DSpath);
+	sprintf(DefaultSAMpath, "%s/SAM", DSpath);
+	snprintf(InputSAMpath, sizeof(InputSAMpath), "%s",
+	         InputSAMDirectory ? InputSAMDirectory : DefaultSAMpath);
+	snprintf(OutputSAMpath, sizeof(OutputSAMpath), "%s",
+	         OutputSAMDirectory ? OutputSAMDirectory : DefaultSAMpath);
+	if (!direxists(InputSAMpath))
+		Cleanup("can't access SAM input directory '%s'", InputSAMpath);
+	if (makedirs(OutputSAMpath) == -1)
+		Cleanup("can't create SAM output directory '%s'", OutputSAMpath);
 
 	// extract constants
 	M = Header.NumPri;
@@ -458,7 +473,7 @@ int	main(
 		printf("reading ");
 		fflush(stdout);
 	}
-	sprintf(WgtDir, "%s/%s,%-d-%-dHz", SAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
+	sprintf(WgtDir, "%s/%s,%-d-%-dHz", InputSAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
 	switch(Params.CovType) {
 		case GLOBAL_:	// 'Global' weights
 			if(vflg == TRUE) {
@@ -770,7 +785,7 @@ int	main(
 		fflush(stdout);
 	}
 	if(!strncmp(Params.DirName, "NULL", 4))
-		sprintf(ImgPath, "%s/%s,%s,", SAMpath, Prefix, ParmName);
+		sprintf(ImgPath, "%s/%s,%s,", OutputSAMpath, Prefix, ParmName);
 	else
 		sprintf(ImgPath, "%s/%s,%s,", Params.DirName, Prefix, ParmName);
 	switch(Params.NumMark) {

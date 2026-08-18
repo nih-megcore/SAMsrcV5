@@ -165,7 +165,8 @@ int main(
     char            fpath[256];         // general path name
     char            *DSName = NULL;     // MEG dataset name
     char            DSpath[256];        // MEG dataset path
-    char            SAMpath[256];       // SAM subdirectory path
+    char            InputSAMpath[256];  // SAM input root
+    char            OutputSAMpath[256]; // SAM output root
     char            HullPath[256];      // hull.shape path
     char            AtlasPath[256];     // atlas path
     char            TargetPath[256];    // target path to where targets are found
@@ -334,7 +335,12 @@ int main(
     GetDsInfo(DSName, &Header, &Channel, &Epoch, NULL, TRUE);
     sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
 #endif
-    GetFilePath(DSDIR, SAMpath, sizeof(SAMpath), &Params, "SAM", 0);
+    GetSAMPath(InputSAMpath, sizeof(InputSAMpath), &Params, SAM_INPUT);
+    GetSAMPath(OutputSAMpath, sizeof(OutputSAMpath), &Params, SAM_OUTPUT);
+    if (!direxists(InputSAMpath))
+        Cleanup("can't access SAM input directory '%s'", InputSAMpath);
+    if (makedirs(OutputSAMpath) == -1)
+        Cleanup("can't create SAM output directory '%s'", OutputSAMpath);
 
     // set channel & epoch count constants
     M = Header.NumPri;
@@ -375,7 +381,7 @@ int main(
                     printf("searching for target file");
                     fflush(stdout);
                 }
-                GetFilePath("%d/SAM/Max", TargetPath, sizeof(TargetPath), &Params, "", 0);
+                snprintf(TargetPath, sizeof(TargetPath), "%s/Max", InputSAMpath);
                 dirp = opendir(TargetPath);
                 if (dirp == NULL) {
                     fatalerr("No ROI and target directory %s not found", TargetPath);
@@ -387,7 +393,7 @@ int main(
                         s = copy_string(s0);
                         s[i - 4] = '\0';                        // strip off .max
                         Params.TargetName = s;
-                        GetFilePath("%d/SAM/Max/%s", TargetName, sizeof(TargetName), &Params, s0, 0);
+                        snprintf(TargetName, sizeof(TargetName), "%s/Max/%s", InputSAMpath, s0);
                         if (vflg) {
                             printf(" - found");
                             fflush(stdout);
@@ -434,7 +440,7 @@ int main(
             printf("reading Transform");
             fflush(stdout);
         }
-        GetFilePath("%d/SAM/%s.xfm", fpath, sizeof(fpath), &Params, (char *)p->ptr, 0);
+        snprintf(fpath, sizeof(fpath), "%s/%s.xfm", InputSAMpath, (char *)p->ptr);
         OrigChannel = new_array(ChannelInfo, Header.NumChannels);
         memcpy(OrigChannel, Channel, sizeof(ChannelInfo) * Header.NumChannels);
         MoveFrame(&Header, OrigChannel, Channel, fpath);
@@ -652,16 +658,13 @@ int main(
 
     // generate covariance subdirectory full pathname string by concatenating SAMpath, CovName, & bandpass
     sprintf(fpath, "%s,%-d-%-dHz", CovName, (int)HPFreq, (int)LPFreq);
-    GetFilePath("%d/SAM/%s", CovDirName, sizeof(CovDirName), &Params, fpath, 0);
+    snprintf(CovDirName, sizeof(CovDirName), "%s/%s", InputSAMpath, fpath);
     sprintf(fpath, "%s,%-d-%-dHz", WtsName, (int)HPFreq, (int)LPFreq);
-    GetFilePath("%d/SAM/%s", WtsDirName, sizeof(WtsDirName), &Params, fpath, 0);
+    snprintf(WtsDirName, sizeof(WtsDirName), "%s/%s", OutputSAMpath, fpath);
 
-    // create Wts subdirectory if different from CovDir
-    if (strcmp(WtsName, CovName) != 0) {
-        if (mkdir(WtsDirName, 0755) == -1)
-            if (errno != EEXIST)
-                Cleanup("can't create weights subdirectory");
-    }
+    // Input and output roots may differ even when the product names match.
+    if (makedirs(WtsDirName) == -1)
+        Cleanup("can't create weights directory '%s'", WtsDirName);
 
     // count actual number of covariance matrices
     if (vflg) {
@@ -871,7 +874,7 @@ int main(
         } else {
                 Stats[n].SAMHeader.StepSize = Params.SAMStep;   // voxel step size (m)
         }
-        sprintf(fpath, "%s/%s.fwd", SAMpath, WtsName);
+        sprintf(fpath, "%s/%s.fwd", OutputSAMpath, WtsName);
         bp = fileopen(fpath, "wb");
         if (fwrite((void *)FwdID, 8, 1, bp) != 1)
             Cleanup("can't write ID to forward solution file");
@@ -1082,7 +1085,7 @@ int main(
         }
         for (n=0; n<NumCov; n++)
             if (Stats[n].Used && n != ORIENT_) {
-                sprintf(fpath, "%s/%s,%s,%s.wts", SAMpath, WtsName, Params.TargetName, Stats[n].Name);
+                sprintf(fpath, "%s/%s,%s,%s.wts", OutputSAMpath, WtsName, Params.TargetName, Stats[n].Name);
                 PutWts(fpath, Stats[n].Wd, Header, Stats[n].WgtCovHdr);
             }
 
@@ -1170,7 +1173,7 @@ int main(
         }
     }
 
-    log_params(SAMpath);
+    log_params(OutputSAMpath);
 
     // all done!
     if (vflg) {

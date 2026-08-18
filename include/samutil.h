@@ -30,6 +30,8 @@ extern void msg(char *, ...);
 extern FILE *fileopen(char *name, char *mode);
 extern int fileexists(char *name);
 extern int direxists(char *name);
+extern int makedirs(char *name);
+extern void parse_samdir_args(int *argc, char **argv, char **input, char **output);
 
 extern char *fgetline(char *buf, int maxlen, FILE *infile);
 

@@ -82,7 +82,11 @@ main(
 	static int	mflg = FALSE;	// SAM weight flag
 	extern char	*optarg;
 	extern int	opterr;
-	char		SAMpath[256];	// SAM path
+	char		DefaultSAMpath[256]; // dataset-local SAM root
+	char		InputSAMpath[256];   // SAM input root
+	char		OutputSAMpath[256];  // SAM output root
+	char       *InputSAMDirectory = NULL;
+	char       *OutputSAMDirectory = NULL;
 	char		fpath[256];		// general path name
 	char		DSName[256];	// MEG dataset name
 	char		DSpath[256];	// dataset path
@@ -117,6 +121,7 @@ main(
 	FILE		*fp;			// file pointer for reading time segment
 
 	// parse command line parameters
+	parse_samdir_args(&argc, argv, &InputSAMDirectory, &OutputSAMDirectory);
 	opterr = 1;			// enable error reporting
 	while((c = getopt_long(argc, argv, ShortOpts, LongOpts, &LongIndex)) != EOF) {
 		switch(c) {
@@ -152,6 +157,8 @@ main(
 			fprintf(stderr, "SAMvs\t-r <run name>\t%s rev-%0d, %s\n", PRG_REV, MINOR_REV, __DATE__);
 #endif
 		fprintf(stderr, "\t-m <parameter file name>\n");
+		fprintf(stderr, "\t-i_SAMdir <SAM input directory>\n");
+		fprintf(stderr, "\t-o_SAMdir <SAM output directory>\n");
 		fprintf(stderr, "\t-v -- verbose mode\n");
 		exit(-1);
 	}
@@ -173,7 +180,15 @@ main(
 	GetDsInfo(DSName, &Header, &Channel, &Epoch, &Bad, TRUE);
     sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
 #endif
-	sprintf(SAMpath, "%s/SAM", DSpath);
+	sprintf(DefaultSAMpath, "%s/SAM", DSpath);
+	snprintf(InputSAMpath, sizeof(InputSAMpath), "%s",
+	         InputSAMDirectory ? InputSAMDirectory : DefaultSAMpath);
+	snprintf(OutputSAMpath, sizeof(OutputSAMpath), "%s",
+	         OutputSAMDirectory ? OutputSAMDirectory : DefaultSAMpath);
+	if (!direxists(InputSAMpath))
+		Cleanup("can't access SAM input directory '%s'", InputSAMpath);
+	if (makedirs(OutputSAMpath) == -1)
+		Cleanup("can't create SAM output directory '%s'", OutputSAMpath);
 
 	// determine channels, epochs, & sample count
 	M = Header.NumPri;
@@ -207,7 +222,7 @@ main(
 	if(strncmp(Params.DirName, "NULL", 4))
 		sprintf(ImgPath, "%s", Params.DirName);
 	else
-		sprintf(ImgPath, "%s", SAMpath);
+		sprintf(ImgPath, "%s", OutputSAMpath);
 
 	// set prefix to NumPrefix characters (default is 8-character dataset hashcode)
 	memset(Prefix, 0, 64);
@@ -236,9 +251,9 @@ main(
 		fflush(stdout);
 	}
 	if(Params.ImageFormat == TLRC)
-		sprintf(fpath, "%s/%s,%-d-%-dHz/Global_at.nii", SAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
+		sprintf(fpath, "%s/%s,%-d-%-dHz/Global_at.nii", InputSAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
 	else
-		sprintf(fpath, "%s/%s,%-d-%-dHz/Global.nii", SAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
+		sprintf(fpath, "%s/%s,%-d-%-dHz/Global.nii", InputSAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
 	Wgt = GetNIFTIWts(fpath, &NiiHdr, extension, &ExtHdr);
 	V = Wgt->size1;
 	if(Wgt->size2 != M)

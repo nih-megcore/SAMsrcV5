@@ -1,11 +1,14 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_vector.h>
 
 #include <samlib.h>
+#include <sam_parse.h>
 #include <siglib.h>
 
 #define EPS 1.0e-10
@@ -153,12 +156,66 @@ static void test_linear_algebra(void)
     gsl_matrix_free(matrix);
 }
 
+static void test_sam_directories(void)
+{
+    PARMINFO params;
+    char path[512];
+#ifndef _WIN32
+    char temp[] = "/tmp/sam-path-test-XXXXXX";
+    char nested[512];
+#endif
+    char *input;
+    char *output;
+    char *argv[] = {
+        "legacy", "-r", "dataset", "-i_SAMdir", "input-root",
+        "-o_SAMdir", "output-root", "-v", NULL
+    };
+    int argc = 8;
+
+    new_params(&params);
+    params.DataSetName = "/data/example.ds";
+    GetSAMPath(path, sizeof(path), &params, SAM_INPUT);
+    CHECK(strcmp(path, "/data/example.ds/SAM") == 0, "default SAM input root");
+    GetSAMPath(path, sizeof(path), &params, SAM_OUTPUT);
+    CHECK(strcmp(path, "/data/example.ds/SAM") == 0, "default SAM output root");
+
+    params.InputSAMDirectory = "separate-input";
+    params.OutputSAMDirectory = "separate-output";
+    GetSAMPath(path, sizeof(path), &params, SAM_INPUT);
+    CHECK(strcmp(path, "separate-input") == 0, "configured SAM input root");
+    GetSAMPath(path, sizeof(path), &params, SAM_OUTPUT);
+    CHECK(strcmp(path, "separate-output") == 0, "configured SAM output root");
+
+#ifndef _WIN32
+    CHECK(mkdtemp(temp) != NULL, "create SAM directory test root");
+    snprintf(nested, sizeof(nested), "%s/one/two/SAM", temp);
+    CHECK(makedirs(nested) == 0, "recursively create SAM output root");
+    CHECK(direxists(nested), "recursive SAM output root exists");
+
+    input = output = NULL;
+    parse_samdir_args(&argc, argv, &input, &output);
+    CHECK(argc == 4, "legacy SAM flags removed before getopt");
+    CHECK(strcmp(input, "input-root") == 0, "legacy SAM input flag parsed");
+    CHECK(strcmp(output, "output-root") == 0, "legacy SAM output flag parsed");
+    CHECK(strcmp(argv[1], "-r") == 0 && strcmp(argv[3], "-v") == 0,
+          "unrelated legacy options preserved");
+
+    rmdir(nested);
+    snprintf(nested, sizeof(nested), "%s/one/two", temp);
+    rmdir(nested);
+    snprintf(nested, sizeof(nested), "%s/one", temp);
+    rmdir(nested);
+    rmdir(temp);
+#endif
+}
+
 int main(void)
 {
     test_coordinates();
     test_rotations_and_fields();
     test_signals();
     test_linear_algebra();
+    test_sam_directories();
 
     if (failures != 0) {
         fprintf(stderr, "%d core unit test(s) failed\n", failures);

@@ -96,7 +96,12 @@ int	main(
 	char			fpath[256];			// general path name
 	char			DSName[256];		// MEG dataset name
 	char			DSpath[256];		// MEG dataset path
-	char			SAMpath[256];		// SAM subdirectory path
+	char			DefaultSAMpath[256]; // dataset-local SAM root
+	char			InputSAMpath[256];  // SAM input root
+	char			OutputSAMpath[256]; // SAM output root
+	char            OutputWgtDir[256]; // output weight product directory
+	char            *InputSAMDirectory = NULL;
+	char            *OutputSAMDirectory = NULL;
 	char			MRIpath[256];		// alternate MRI directory path
 	char            TargetPath[256];    // target path
 	char            WgtPath[256];       // weight file path
@@ -134,6 +139,7 @@ int	main(
 
 
 	// parse command line parameters
+	parse_samdir_args(&argc, argv, &InputSAMDirectory, &OutputSAMDirectory);
 	opterr = 1;					// enable error reporting
     while((opt = getopt_long(argc, argv, ShortOpts, LongOpts, &LongIndex)) != EOF) {
 		switch(opt) {
@@ -177,6 +183,8 @@ int	main(
 		fprintf(stderr, "\t-m <analysis parameter file name\n");
 		fprintf(stderr, "\t\t(optional parameters)\n");
 		fprintf(stderr, "\t-i <MRI directory path\n");
+		fprintf(stderr, "\t-i_SAMdir <SAM input directory>\n");
+		fprintf(stderr, "\t-o_SAMdir <SAM output directory>\n");
 		fprintf(stderr, "\t-Z -- noise normalization\n");
 		fprintf(stderr, "\t-v -- verbose mode\n");
 		exit(-1);
@@ -198,7 +206,15 @@ int	main(
     GetDsInfo(DSName, &Header, &Channel, &Epoch, NULL, TRUE);
 	sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
 #endif
-	sprintf(SAMpath, "%s/SAM", DSpath);
+	sprintf(DefaultSAMpath, "%s/SAM", DSpath);
+	snprintf(InputSAMpath, sizeof(InputSAMpath), "%s",
+	         InputSAMDirectory ? InputSAMDirectory : DefaultSAMpath);
+	snprintf(OutputSAMpath, sizeof(OutputSAMpath), "%s",
+	         OutputSAMDirectory ? OutputSAMDirectory : DefaultSAMpath);
+	if (!direxists(InputSAMpath))
+		Cleanup("can't access SAM input directory '%s'", InputSAMpath);
+	if (makedirs(OutputSAMpath) == -1)
+		Cleanup("can't create SAM output directory '%s'", OutputSAMpath);
 
 	// set ORDER
 	ORDER = 20;				// 6th-order spherical harmonic expansion
@@ -338,7 +354,7 @@ int	main(
             printf("searching for target file:");
             fflush(stdout);
         }
-        sprintf(fpath, "%s/Max", SAMpath);          // set path to Max subdirectory in dataset
+		sprintf(fpath, "%s/Max", InputSAMpath);     // set path to Max subdirectory
         dirp = opendir(fpath);
         found = FALSE;
         while((dp = readdir(dirp)) != NULL) {
@@ -356,9 +372,9 @@ int	main(
             fflush(stdout);
         }
         closedir(dirp);
-        sprintf(TargetPath, "%s/Max/%s", SAMpath, FileName);
+		sprintf(TargetPath, "%s/Max/%s", InputSAMpath, FileName);
         FileName[i-4] = '\0';                       // strip off .max
-        sprintf(WgtPath, "%s/%s,%s.wts", SAMpath, ParmName, FileName);
+		sprintf(WgtPath, "%s/%s,%s.wts", OutputSAMpath, ParmName, FileName);
     }
 
 	if(vflg == TRUE) {
@@ -393,9 +409,9 @@ int	main(
 		printf("reading covariance file(s)");
 		fflush(stdout);
 	}
-	sprintf(fpath, "%s/%s/Global.cov", SAMpath, CovDirName);
+	sprintf(fpath, "%s/%s/Global.cov", InputSAMpath, CovDirName);
 	GetCov(fpath, &WgtCovHdr, &ChanIndex, Cf);
-	sprintf(fpath, "%s/%s/Orient.cov", SAMpath, CovDirName);
+	sprintf(fpath, "%s/%s/Orient.cov", InputSAMpath, CovDirName);
 	GetCov(fpath, &OriCovHdr, &ChanIndex, Co);
 
 	// announce regularization used
@@ -478,7 +494,10 @@ int	main(
 	Params.SAMStart[Z_] = 0.001;
 	Params.SAMEnd[Z_] = (double)N * 0.001;
 	Params.SAMStep = 0.001;
-	sprintf(fpath, "%s/%s,%-d-%-dHz/Global.nii", SAMpath, ParmName, (int)HPFreq, (int)LPFreq);
+	sprintf(OutputWgtDir, "%s/%s,%-d-%-dHz", OutputSAMpath, ParmName, (int)HPFreq, (int)LPFreq);
+	if (makedirs(OutputWgtDir) == -1)
+		Cleanup("can't create weights directory '%s'", OutputWgtDir);
+	sprintf(fpath, "%s/Global.nii", OutputWgtDir);
 	PutNIFTIWts(fpath, &Params, Wt ,Noise);
 
 	// finit

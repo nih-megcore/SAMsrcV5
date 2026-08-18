@@ -226,12 +226,11 @@ int main(
     GetDsInfo(DSName, &Header, &Channel, &Epoch, &Bad, TRUE);
     sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
 #endif
-    GetFilePath(DSDIR, SAMpath, sizeof(SAMpath), &Params, "SAM", 0);
+    GetSAMPath(SAMpath, sizeof(SAMpath), &Params, SAM_OUTPUT);
 
-    // create SAM subdirectory
-    if (mkdir(SAMpath, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
-        if (errno != EEXIST)
-            Cleanup("can't create 'SAM' subdirectory");
+    // create the SAM output root and any missing parents
+    if (makedirs(SAMpath) == -1)
+        Cleanup("can't create SAM output directory '%s'", SAMpath);
 
     // count data dimensions
     E = Header.NumEpochs;

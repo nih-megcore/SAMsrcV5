@@ -115,7 +115,8 @@ int main(
     char            fpath[256];             // general path name
     char            *DSName = NULL;         // dataset name
     char            DSpath[256];            // MEG path name
-    char            SAMDir[256];            // SAM subdirectory path
+    char            InputSAMDir[256];       // SAM input root
+    char            OutputSAMDir[256];      // SAM output root
     char            ImgDir[256];            // directory for output of SAMepi NIFTI image
     char            ImgPath[256];           // full path for output NIFTI image
     char            ImgName[256];
@@ -234,7 +235,12 @@ int main(
     GetDsInfo(DSName, &Header, &Channel, &Epoch, &Bad, TRUE);
     sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
 #endif
-    GetFilePath(DSDIR, SAMDir, sizeof(SAMDir), &Params, "SAM", 0);
+    GetSAMPath(InputSAMDir, sizeof(InputSAMDir), &Params, SAM_INPUT);
+    GetSAMPath(OutputSAMDir, sizeof(OutputSAMDir), &Params, SAM_OUTPUT);
+    if (!direxists(InputSAMDir))
+        Cleanup("can't access SAM input directory '%s'", InputSAMDir);
+    if (makedirs(OutputSAMDir) == -1)
+        Cleanup("can't create SAM output directory '%s'", OutputSAMDir);
 
     // establish epoch, channel, & sample count
     E = Header.NumEpochs;
@@ -280,7 +286,7 @@ int main(
         printf("reading Global SAM weights");
         fflush(stdout);
     }
-    sprintf(fpath, "%s/%s,%-d-%-dHz/Global.nii", SAMDir, WtsName, (int)Params.CovHP, (int)Params.CovLP);
+    sprintf(fpath, "%s/%s,%-d-%-dHz/Global.nii", InputSAMDir, WtsName, (int)Params.CovHP, (int)Params.CovLP);
     Wgt = GetNIFTIWts(fpath, &NiiHdr, extension, &ExtHdr);
     V = Wgt->size1;
     if (Wgt->size2 != M)
@@ -489,10 +495,9 @@ int main(
     fclose(fp);
 
     // create symbolic link from subject's MRI directory to Image subdirectory (this gives NIFTIpeak access to the file)
-    sprintf(ImgDir, "%s/Image/", SAMDir);
-    if(mkdir(ImgDir, S_IRWXU | S_IRWXG | S_IRWXO) == -1)
-        if(errno != EEXIST)
-            Cleanup("can't create 'Max' subdirectory");
+    sprintf(ImgDir, "%s/Image/", OutputSAMDir);
+    if (makedirs(ImgDir) == -1)
+        Cleanup("can't create SAM image directory '%s'", ImgDir);
     sprintf(ImgName, "%s/%s,%s.nii", ImgDir, DSName, ParmName);
     symlink(fpath, ImgName);
 

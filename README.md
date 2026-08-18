@@ -43,6 +43,27 @@ SAM_DEPS_ROOT=/path/to/deps python -m pip install .
 
 The legacy `make` build remains supported on Unix-like development systems.
 
+## SAM input and output directories
+
+SAM products no longer have to live inside the MEG dataset directory. The
+pipeline commands accept independent roots for existing inputs and newly
+generated outputs:
+
+```sh
+sam_cov -r FILENAME.ds -m analysis.param \
+    -o_SAMdir /work/covariances
+sam_wts -r FILENAME.ds -m weights.param \
+    -i_SAMdir /work/covariances -o_SAMdir /work/weights
+sam_3d -r FILENAME.ds -m image.param \
+    -i_SAMdir /work/weights -o_SAMdir /work/images
+```
+
+Each option names the SAM root itself. If either option is omitted, that side
+independently defaults to `FILENAME.ds/SAM`. Output directories and missing
+parents are created automatically. `InputSAMDirectory` and
+`OutputSAMDirectory` provide the same settings in parameter files, while an
+explicit `ImageDirectory` continues to control final image placement.
+
 ## Tests
 
 The test suite has a fast host-side unit/CLI layer and an AFNI/CTF integration

@@ -29,6 +29,9 @@
 
 #define DSDIR "%d/%s"   // default GetFilePath() pattern for files in the ds dir
 
+#define SAM_INPUT         0
+#define SAM_OUTPUT        1
+
 #define ACTIVE          0
 #define CONTROL         1
 
@@ -92,6 +95,7 @@ void    GetDsInfo(char *, HeaderInfo *, ChannelInfo **, EpochInfo **, unsigned c
 void    GetDsData(HeaderInfo *, int, int, double, double *);
 int     GetCTFData(HeaderInfo *, int, int, double, double *);
 void    GetFilePath(char *pattern, char *path, int len, PARMINFO *p, char *name, int exist);
+void    GetSAMPath(char *path, int len, PARMINFO *p, int output);
 int     GetHC(char *, double (*)[3]);
 void    GetHDM(char *, HEAD_MODEL *);
 int     GetMagnesChan(char *, char *, HeaderInfo *, ChannelInfo *, int, int, double *);
