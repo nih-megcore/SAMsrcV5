@@ -347,8 +347,33 @@ def validate_decoupled_sam_directories(work, mri_work, data_work, dataset_work):
     weights_dir = weights_root / "airpuff,5-70Hz"
     assert (weights_dir / "Global.nii").is_file()
     assert (weights_dir / "GlobalCN.dat").is_file()
+    assert (weights_dir / "Global_Noise").is_file()
     assert (weights_root / "sam_wts.param").is_file()
     assert not (covariance_dir / "Global.nii").exists()
+    assert not (dataset_work / "SAM").exists()
+
+    ers_root = work / "external" / "ers"
+    run(
+        [
+            "sam_ers",
+            "-r",
+            dataset_work.name,
+            "-m",
+            FIXTURES / "ers.param",
+            "-W",
+            "airpuff",
+            "-N",
+            "decoupled",
+            "-i_SAMdir",
+            weights_root,
+            "-o_SAMdir",
+            ers_root,
+        ],
+        data_work,
+        "sam-ers-decoupled",
+    )
+    assert (ers_root / "ABABABAB,decoupled,stim,MOM,ERS.nii").is_file()
+    assert (ers_root / "sam_ers.param").is_file()
     assert not (dataset_work / "SAM").exists()
 
     image_parameter = work / "decoupled-image.param"

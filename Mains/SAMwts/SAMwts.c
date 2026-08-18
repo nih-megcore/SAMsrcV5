@@ -785,6 +785,16 @@ int main(
                     break;
             }
 
+            // A decoupled weights root must contain the noise value consumed
+            // alongside each weight file by downstream imaging programs.
+            if (strcmp(CovDirName, WtsDirName) != 0) {
+                sprintf(fpath, "%s/%s_Noise", WtsDirName, Stats[n].Name);
+                if ((np = fopen(fpath, "w")) == NULL)
+                    Cleanup("can't write noise file");
+                fprintf(np, "%e\n", Stats[n].Noise);
+                fclose(np);
+            }
+
             if (vflg) {
                 printf(" - done\n");
             }

@@ -88,6 +88,10 @@ def sam_cov() -> NoReturn:
     _native("sam_cov")
 
 
+def sam_ers() -> NoReturn:
+    _native("sam_ers")
+
+
 def sam_power() -> NoReturn:
     _native("sam_power")
 

@@ -7,8 +7,10 @@
 //      flags:
 //      -r <dataset name>           -- MEG run name
 //      -d <data file name>         -- MEG data file name (4D, only)
-//      -m <parameter file name>    -- name of trigger marker to average
-//      -z <snr threshold>          -- threshold for SNR of virtual sensor
+//      -m <parameter file name>    -- analysis parameter file
+//      -i_SAMdir <directory>       -- SAM products input root
+//      -o_SAMdir <directory>       -- SAM products output root
+//      -a                          -- absolute voxel values
 //      -v                          -- verbose mode
 //
 //      Author: Stephen E. Robinson
@@ -22,24 +24,22 @@
 #include <unistd.h>
 #include <math.h>
 #include <float.h>
-#include <getopt.h>
 #include <string.h>
 #include <fcntl.h>
+#include <gsl/gsl_matrix.h>
 #include <geoms.h>
 #include <samlib.h>
 #include <siglib.h>
-#include <rvelib.h>
-#include <Params.h>
 #include <DataFiles.h>
 #include <SAMfiles.h>
-#include <samUtils.h>
 #include <filters.h>
 #include <nifti1.h>
 #include <version.h>
+#include "samutil.h"
+#include "sam_param.h"
+#include "sam_parse.h"
 
 #define MINOR_REV       3
-#define TRUE            1
-#define FALSE           0
 #define STATE_START     0
 #define STATE_END       1
 #define SIG_ORDER       4
@@ -63,6 +63,7 @@ int main(
     FFTSPEC         DataFFT;                // FFT filter structure
     FFTSPEC         NotchFFT;               // FFT notch filter structure
     PARMINFO        Params;                 // analysis parameters
+    PARM            *p;                     // active parameter
     AVG_TRIAL       *Trial;                 // Trial[N]
     SAM_MARKS       *Marker;                // Marker[N] -- array of time-ordered markers
     HeaderInfo      Header;                 // MEG data header
@@ -121,7 +122,6 @@ int main(
     int             NumTrials2;             // number of trials in average 2
     int             NumImg;                 // number of images
     int             NumBox;                 // number of boxcar integrator samples
-    int             LongIndex;              // position of arguments
     static int      aflg = FALSE;           // take absolute value of voxels
     static int      bflg = FALSE;           // baseline removal flag
     static int      eflg = FALSE;           // command-line error flag
@@ -129,95 +129,93 @@ int main(
     static int      pflg = FALSE;           // polarity correction flag
     static int      rflg = FALSE;           // dataset name flag
     static int      vflg = FALSE;           // verbose mode flag
-    extern char     *optarg;
-    extern int      opterr;
     char            fpath[256];             // general path name
-    char            DSName[256];            // MEG dataset name
+    char            *DSName = NULL;         // MEG dataset name
     char            DSpath[256];            // MEG dataset path
-    char            DefaultSAMpath[256];    // dataset-local SAM root
     char            InputSAMpath[256];      // SAM input root
     char            OutputSAMpath[256];     // SAM output root
-    char            *InputSAMDirectory = NULL;
-    char            *OutputSAMDirectory = NULL;
     char            ImgPath[256];           // image path
     char            Prefix[64];             // output file prefix
     char            Suffix[10];             // output file suffix
-    char            ParmName[256];          // parameter file name
+    char            *OutName = NULL;        // output filename root
+    char            *CovName = NULL;        // covariance filename root
+    char            *WtsName = NULL;        // weights filename root
     char            WgtDir[256];            // weight file prefix
     char            FilterName[8];          // filter name -- IIR | FFT
     char            extension[4];           // extension
 #if BTI
     static int      dflg = FALSE;           // pdf file name flag
-    char            PDFName[256];           // name of data file
-    char            ShortOpts[] = "r:d:m:av";
-    static struct option    LongOpts[] = {  // command line options
-        {"dataset_name", required_argument, NULL, 'r'},
-        {"pdf_name", required_argument, NULL, 'd'},
-        {"analysis_name", required_argument, NULL, 'm'},
-        {"absolute_value", no_argument, NULL, 'a'},
-        {"verbose", no_argument, NULL, 'v'},
-        {NULL, no_argument, NULL, 0}
-    };
+    char            *PDFName = NULL;        // name of data file
 #else
     double          scale;                  // bits-->Tesla conversion
     unsigned char   **Bad;                  // Bad[E][T] -- flags for bad samples
-    char            ShortOpts[] = "r:m:av";
-    static struct option    LongOpts[] = {  // command line options
-        {"dataset_name", required_argument, NULL, 'r'},
-        {"analysis_name", required_argument, NULL, 'm'},
-        {"absolute_value", no_argument, NULL, 'a'},
-        {"verbose", no_argument, NULL, 'v'},
-        {NULL, no_argument, NULL, 0}
-    };
 #endif
     FILE            *fp;                    // output file pointer
     FILE            *np;                    // noise file pointer
 
-    // parse command line parameters
-    parse_samdir_args(&argc, argv, &InputSAMDirectory, &OutputSAMDirectory);
-    opterr = 1;             // enable error reporting
-    while((c = getopt_long(argc, argv, ShortOpts, LongOpts, &LongIndex)) != EOF) {
-        switch(c) {
-            case 'r':       // run name
-                sprintf(DSName, "%s", optarg);
-                rflg = TRUE;
-                break;
-#if BTI
-            case 'd':       // data file name
-                sprintf(PDFName, "%s", optarg);
-                dflg = TRUE;
-                break;
-#endif
-            case 'm':       // analysis parameter file name
-                sprintf(ParmName, "%s", optarg);
-                mflg = TRUE;
-                break;
-            case 'a':       // absolute value of voxels
-                aflg = TRUE;
-                break;
-            case 'v':       // verbose mode
-                vflg = TRUE;
-                break;
-            default:
-                eflg = TRUE;
-                break;
-        }
+    // Register and parse the parameters used by this program.
+    reg_usage(argv[0], MINOR_REV, __DATE__);
+    reg_std_parm();
+    reg_parm("Marker");
+    reg_parm("Baseline");
+    reg_parm("DataSegment");
+    reg_parm("SignSegment");
+    reg_parm("CovType");
+    reg_parm("CovBand");
+    reg_parm("ImageBand");
+    reg_parm("SmoothBand");
+    reg_parm("TimeStep");
+    reg_parm("FilterType");
+    reg_parm("Notch");
+    reg_parm("Hz");
+    reg_parm("ImageFormat");
+    reg_parm("ImageMetric");
+    set_parm_arg_help("ImageMetric", "Signal|Power");
+    reg_parm("ImageDirectory");
+    reg_parm("PrefixLength");
+    reg_parm("Absolute");
+    reg_parm("CovName");
+    reg_parm("WtsName");
+    reg_parm("OutName");
+    do_parse_args(argc, argv);
+    eflg = get_params(&Params);
+
+    p = get_parm("DataSet");
+    if (p->set) {
+        DSName = copy_string(Params.DataSetName);
+        rflg = TRUE;
     }
 #if BTI
-    if(eflg == TRUE || rflg == FALSE || dflg == FALSE || mflg == FALSE) {
-        fprintf(stderr, "SAMers\t-r <run name>\t%s rev-%0d, %s\n", PRG_REV, MINOR_REV, __DATE__);
-        fprintf(stderr, "\t-d <data file name>\n");
+    p = get_parm("PDFName");
+    if (p->set) {
+        PDFName = (char *)p->ptr;
+        dflg = TRUE;
+    }
+#endif
+    vflg = get_parm("verbose")->set;
+    mflg = get_parm("param")->set;
+    aflg = get_parm("Absolute")->set;
+#if BTI
+    if (eflg || !rflg || !dflg || !mflg) {
 #else
-        if(eflg == TRUE || rflg == FALSE || mflg == FALSE) {
-            fprintf(stderr, "SAMers\t-r <run name>\t%s rev-%0d, %s\n", PRG_REV, MINOR_REV, __DATE__);
+    if (eflg || !rflg || !mflg) {
 #endif
-        fprintf(stderr, "\t-m <parameter file name>\n");
-        fprintf(stderr, "\t-i_SAMdir <SAM input directory>\n");
-        fprintf(stderr, "\t-o_SAMdir <SAM output directory>\n");
-        fprintf(stderr, "\t-a -- absolute voxel values\n");
-        fprintf(stderr, "\t-v -- verbose mode\n");
-        exit(-1);
+        msg("dataset (-r) and parameter file (-m) are required\n");
+        do_help();
     }
+
+    OutName = Params.ParmName;
+    p = get_parm("OutName");
+    if (p->set)
+        OutName = (char *)p->ptr;
+    CovName = OutName;
+    p = get_parm("CovName");
+    if (p->set)
+        CovName = (char *)p->ptr;
+    WtsName = CovName;
+    p = get_parm("WtsName");
+    if (p->set)
+        WtsName = (char *)p->ptr;
 
     // get dataset information structures
     if(vflg == TRUE) {
@@ -236,11 +234,8 @@ int main(
     GetDsInfo(DSName, &Header, &Channel, &Epoch, &Bad, TRUE);
     sprintf(DSpath, "%s/%s.ds", Header.DsPath, Header.SetName);
 #endif
-    sprintf(DefaultSAMpath, "%s/SAM", DSpath);
-    snprintf(InputSAMpath, sizeof(InputSAMpath), "%s",
-             InputSAMDirectory ? InputSAMDirectory : DefaultSAMpath);
-    snprintf(OutputSAMpath, sizeof(OutputSAMpath), "%s",
-             OutputSAMDirectory ? OutputSAMDirectory : DefaultSAMpath);
+    GetSAMPath(InputSAMpath, sizeof(InputSAMpath), &Params, SAM_INPUT);
+    GetSAMPath(OutputSAMpath, sizeof(OutputSAMpath), &Params, SAM_OUTPUT);
     if (!direxists(InputSAMpath))
         Cleanup("can't access SAM input directory '%s'", InputSAMpath);
     if (makedirs(OutputSAMpath) == -1)
@@ -252,14 +247,6 @@ int main(
     T = Header.MaxSamples;
     f = Header.PsIndex[0];      // 1st MEG primary sensor channel index
 
-    // parse analysis parameter specification file in current working directory
-    if(vflg == TRUE) {
-        printf(" - done\n");
-        printf("parsing '%s' parameter file", ParmName);
-        fflush(stdout);
-    }
-    sprintf(fpath, "%s.param", ParmName);
-    GetParams(fpath, &Params);
     if(vflg == TRUE) {
         printf(" - done\n");
         switch(Params.ImageMetric) {
@@ -297,15 +284,21 @@ int main(
     }
 
     // sanity checks
-    if(Params.CovHP == -999. || Params.CovLP == -999.)
+    if (Params.NumMark < 1 || Params.NumMark > 2)
+        Cleanup("sam_ers requires one or two Marker parameters");
+    if (!get_parm("CovType")->set)
+        Cleanup("CovType must be specified");
+    if (!get_parm("ImageMetric")->set)
+        Cleanup("ImageMetric must be specified");
+    if (!get_parm("CovBand")->set)
         Cleanup("CovBand parameters req'd");
-    if(Params.ImageHP == -999. || Params.ImageLP == -999.)
+    if (!get_parm("ImageBand")->set)
         Cleanup("ImageBand parameters req'd");
     if(Params.ImageHP < Channel[f].AnalogHpFreq)
         Cleanup("ImageBand highpass cutoff frequency out of recorded range");
     if(Params.ImageLP > Channel[f].AnalogLpFreq)
         Cleanup("ImageBand lowpass cutoff frequency out of recorded range");
-    if(Params.SmoothHP == -999 || Params.SmoothLP == -999.)
+    if (!get_parm("SmoothBand")->set)
         Cleanup("'SmoothBand' specifications required");
     BWratio = (Params.ImageLP - Params.ImageHP) / (Params.CovLP - Params.CovHP);
     if(BWratio > 1.)
@@ -483,7 +476,7 @@ int main(
         printf("reading ");
         fflush(stdout);
     }
-    sprintf(WgtDir, "%s/%s,%-d-%-dHz", InputSAMpath, ParmName, (int)Params.CovHP, (int)Params.CovLP);
+    sprintf(WgtDir, "%s/%s,%-d-%-dHz", InputSAMpath, WtsName, (int)Params.CovHP, (int)Params.CovLP);
     sigma2 = 0.;
     switch(Params.CovType) {
         case GLOBAL_:       // read Global weights & Global_Noise
@@ -491,17 +484,20 @@ int main(
                 printf("'Global'");
                 fflush(stdout);
             }
-            sprintf(fpath, "%s/Global_Noise", WgtDir);
-            if((np = fopen(fpath, "r")) == NULL)
-                Cleanup("can't open noise file");
-            if(fscanf(np, "%le", &sigma2) != 1)
-                Cleanup("can't read noise file");
-            fclose(np);
             if(Params.ImageFormat == TLRC)
                 sprintf(fpath, "%s/Global_at.nii", WgtDir);
             else
                 sprintf(fpath, "%s/Global.nii", WgtDir);
             Wgt = GetNIFTIWts(fpath, &NiiHdr, extension, &ExtHdr);
+            sigma2 = (double)NiiHdr.noise * 1.0e-28;
+            if (!(sigma2 > 0.)) {
+                sprintf(fpath, "%s/Global_Noise", WgtDir);
+                if((np = fopen(fpath, "r")) == NULL)
+                    Cleanup("can't open noise file '%s'", fpath);
+                if(fscanf(np, "%le", &sigma2) != 1)
+                    Cleanup("can't read noise file '%s'", fpath);
+                fclose(np);
+            }
             V = Wgt->size1;
             if(Wgt->size2 != M)
                 Cleanup("number of channels in dataset does not match number in weight file");
@@ -511,17 +507,20 @@ int main(
                 printf("'Sum'");
                 fflush(stdout);
             }
-            sprintf(fpath, "%s/Sum_Noise", WgtDir);
-            if((np = fopen(fpath, "r")) == NULL)
-                Cleanup("can't open noise file");
-            if(fscanf(np, "%le", &sigma2) != 1)
-                Cleanup("can't read noise file");
-            fclose(np);
             if(Params.ImageFormat == TLRC)
                 sprintf(fpath, "%s/Sum_at.nii", WgtDir);
             else
                 sprintf(fpath, "%s/Sum.nii", WgtDir);
             Wgt = GetNIFTIWts(fpath, &NiiHdr, extension, &ExtHdr);
+            sigma2 = (double)NiiHdr.noise * 1.0e-28;
+            if (!(sigma2 > 0.)) {
+                sprintf(fpath, "%s/Sum_Noise", WgtDir);
+                if((np = fopen(fpath, "r")) == NULL)
+                    Cleanup("can't open noise file '%s'", fpath);
+                if(fscanf(np, "%le", &sigma2) != 1)
+                    Cleanup("can't read noise file '%s'", fpath);
+                fclose(np);
+            }
             V = Wgt->size1;
             if(Wgt->size2 != M)
                 Cleanup("number of channels in dataset does not match number in weight file");
@@ -586,7 +585,7 @@ int main(
                 printf("making FFT notch filter");
                 fflush(stdout);
             }
-            mknotch(&NotchFFT, Params.CovHP, Params.CovLP, Header.SampleRate, T);
+            mknotch(&NotchFFT, Params.CovHP, Params.CovLP, Header.SampleRate, T, Params.Hz);
         } else {
             fprintf(stderr, "\nreminder: when using IIR filters, data should be notch filtered for power mains prior to analysis\n");
         }
@@ -685,9 +684,6 @@ int main(
                         Out[t] = power(In, TS, TE);
                     }
                     break;
-                case RV_ENTROPY:    // rank vector entropy
-                    Data2RVE(In, Out, TSEG, Params.Dims, Params.ImageLP, Params.Tau, Header.SampleRate);
-                    break;
                 default:
                     Cleanup("ImageMetric not implemented");
                     break;
@@ -766,10 +762,13 @@ int main(
         printf("writing SAM(ers) images");
         fflush(stdout);
     }
-    if(!strncmp(Params.DirName, "NULL", 4))
-        sprintf(ImgPath, "%s/%s,%s,", OutputSAMpath, Prefix, ParmName);
-    else
-        sprintf(ImgPath, "%s/%s,%s,", Params.DirName, Prefix, ParmName);
+    if(!strncmp(Params.DirName, "NULL", 4)) {
+        sprintf(ImgPath, "%s/%s,%s,", OutputSAMpath, Prefix, OutName);
+    } else {
+        if (makedirs(Params.DirName) == -1)
+            Cleanup("can't create ImageDirectory '%s'", Params.DirName);
+        sprintf(ImgPath, "%s/%s,%s,", Params.DirName, Prefix, OutName);
+    }
     switch(Params.NumMark) {
         case 1: sprintf(fpath, "%s%s,%s,ERS.nii", ImgPath, Params.Marker[0].MarkName, Suffix); break;
         case 2: sprintf(fpath, "%s%s-%s,%s,dERS.nii", ImgPath, Params.Marker[0].MarkName, Params.Marker[1].MarkName, Suffix); break;
@@ -808,6 +807,8 @@ int main(
         if(fwrite((void *)Image[d], sizeof(float), V, fp) != V)
             Cleanup("can't write data image file");
     fclose(fp);
+
+    log_params(OutputSAMpath);
 
     // we're done now!
     if(vflg == TRUE) {

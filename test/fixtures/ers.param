@@ -1,0 +1,8 @@
+Marker stim -0.10 0.30 TRUE
+CovBand 5 70
+ImageBand 5 70
+SmoothBand 0 20
+FilterType FFT
+CovType GLOBAL
+ImageMetric Signal
+TimeStep 0.02

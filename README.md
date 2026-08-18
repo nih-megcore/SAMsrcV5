@@ -28,7 +28,7 @@ filename to `python -m pip install`.
 
 Wheels are built for Linux x86_64/aarch64, macOS x86_64/arm64, and Windows
 AMD64. The computational commands (`sam_cov`, `sam_wts`, `sam_3d`, `sam_4d`,
-`sam_power`, `sam_simulate`, and `OPMsim`) are native programs. AFNI workflows
+`sam_ers`, `sam_power`, `sam_simulate`, and `OPMsim`) are native programs. AFNI workflows
 such as `3dNormalize` and `orthohull` still require AFNI commands on `PATH`;
 `orthohull` also uses qhull. FreeSurfer tools and `ROIbuilder` likewise require
 FreeSurfer and PyGObject/GTK respectively.
@@ -63,6 +63,19 @@ independently defaults to `FILENAME.ds/SAM`. Output directories and missing
 parents are created automatically. `InputSAMDirectory` and
 `OutputSAMDirectory` provide the same settings in parameter files, while an
 explicit `ImageDirectory` continues to control final image placement.
+
+## SAM parameter editor
+
+Run `sam_param_gui` to create or edit parameter files for `sam_cov`, `sam_wts`,
+`sam_3d`, and `sam_ers`. The Tkinter interface groups the current supported
+parameters by function, highlights those used by the selected program, checks
+their syntax, and previews the generated plain-text file.
+
+The editor creates `~/samparams` when necessary and saves all `.param` files
+there. Existing files may be opened from elsewhere; comments, blank lines, and
+parameters unknown to the editor are retained when the managed copy is saved.
+Tk must be provided by the host Python installation (often through an operating
+system package named `python3-tk`).
 
 ## Tests
 

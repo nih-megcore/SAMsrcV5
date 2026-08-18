@@ -69,6 +69,8 @@ def test_all_console_entry_points_are_installed() -> None:
         "sam_3d",
         "sam_4d",
         "sam_cov",
+        "sam_ers",
+        "sam_param_gui",
         "sam_power",
         "sam_simulate",
         "sam_wts",
@@ -82,7 +84,7 @@ def test_all_console_entry_points_are_installed() -> None:
 
 
 def test_native_help_and_error_contracts() -> None:
-    for command in ("sam_cov", "sam_wts", "sam_3d", "sam_4d", "sam_power"):
+    for command in ("sam_cov", "sam_wts", "sam_3d", "sam_4d", "sam_ers", "sam_power"):
         result = run(command, "-h")
         assert result.returncode == 0
         assert "Usage:" in result.stdout + result.stderr
