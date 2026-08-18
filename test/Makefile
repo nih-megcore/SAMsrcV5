@@ -9,7 +9,7 @@ PYTEST_ARGS ?=
 
 unit: $(TEST_BINDIR)/test_core
 	$(TEST_BINDIR)/test_core
-	python3 -m pytest -m unit -q $(PYTEST_ARGS) unit
+	PYTHONPATH=$(abspath ../src) python3 -m pytest -m unit -q $(PYTEST_ARGS) unit
 
 integration-build: $(TEST_BINDIR)/inspect_ctf
 
