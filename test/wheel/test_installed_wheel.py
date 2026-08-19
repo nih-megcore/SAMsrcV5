@@ -10,6 +10,7 @@ from pathlib import Path
 
 import pytest
 import samsrcv5
+from samsrcv5.fiducials import convert_json_fids_to_head
 from samsrcv5.launcher import _native_path
 from samsrcv5.normalize import _tail_sd, _view
 
@@ -56,6 +57,7 @@ def test_all_console_entry_points_are_installed() -> None:
     expected = {
         "1dstats",
         "3dNormalize",
+        "convert_json_fids_to_head",
         "FSnormals.py",
         "fiddist.py",
         "meshnorm",
@@ -81,6 +83,7 @@ def test_all_console_entry_points_are_installed() -> None:
         if entry.dist and entry.dist.name == "samsrcv5"
     }
     assert expected <= scripts
+    assert callable(convert_json_fids_to_head)
 
 
 def test_native_help_and_error_contracts() -> None:
@@ -116,6 +119,12 @@ def test_normalize_help_does_not_require_afni() -> None:
     result = run("3dNormalize", "--help")
     assert result.returncode == 0
     assert "Scale an AFNI or SAM volume" in result.stdout
+
+
+def test_fiducial_converter_help_does_not_require_afni() -> None:
+    result = run("convert_json_fids_to_head", "--help")
+    assert result.returncode == 0
+    assert "BIDS T1w NIfTI" in result.stdout
 
 
 def test_normalize_tail_statistics_and_compressed_view(tmp_path: Path) -> None:

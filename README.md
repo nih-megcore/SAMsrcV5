@@ -43,6 +43,27 @@ SAM_DEPS_ROOT=/path/to/deps python -m pip install .
 
 The legacy `make` build remains supported on Unix-like development systems.
 
+## BIDS fiducials to AFNI
+
+Convert a BIDS T1w NIfTI image and the `AnatomicalLandmarkCoordinates` from its
+matching JSON sidecar into an AFNI dataset with Nasion, Left Ear, and Right Ear
+tags:
+
+```sh
+convert_json_fids_to_head sub-01_T1w.nii.gz
+convert_json_fids_to_head sub-01_T1w.nii.gz --output-dir afni --overwrite
+```
+
+The landmark voxel coordinates are transformed with the affine stored in the
+input NIfTI before conversion to AFNI's LPS coordinates. The command requires
+AFNI's `3dcopy` on `PATH`. The same operation is available from Python:
+
+```python
+from samsrcv5.fiducials import convert_json_fids_to_head
+
+brik, head = convert_json_fids_to_head("sub-01_T1w.nii.gz")
+```
+
 ## SAM input and output directories
 
 SAM products no longer have to live inside the MEG dataset directory. The

@@ -26,6 +26,8 @@ objects:
 - rotation and orthogonal-plane invariants;
 - demeaning, detrending, power, Hanning, and Kendall calculations;
 - pseudoinverse and SAM beamformer solutions with known matrices;
+- BIDS landmark validation, affine-to-AFNI coordinate conversion, output
+  protection, and fiducial HEAD attributes;
 - the expected installed command set, help output, argument rejection, and
   `1dstats` output for a known sample.
 

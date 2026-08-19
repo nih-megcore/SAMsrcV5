@@ -32,6 +32,9 @@ dependencies = [
   "scipy>=1.10",
 ]
 
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
 [project.urls]
 Homepage = "https://megcore.nih.gov/index.php?title=Source_Localization_-_SAM"
 Repository = "https://github.com/nih-megcore/SAMsrcV5"
@@ -39,6 +42,7 @@ Repository = "https://github.com/nih-megcore/SAMsrcV5"
 [project.scripts]
 "1dstats" = "samsrcv5.launcher:stats_1d"
 "3dNormalize" = "samsrcv5.normalize:main"
+"convert_json_fids_to_head" = "samsrcv5.fiducials:main"
 "FSnormals.py" = "samsrcv5.launcher:fsnormals"
 "FSnormals" = "samsrcv5.launcher:fsnormals"
 "fiddist.py" = "samsrcv5.launcher:fiddist"
