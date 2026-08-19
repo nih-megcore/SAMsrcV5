@@ -127,6 +127,14 @@ def test_fiducial_converter_help_does_not_require_afni() -> None:
     assert "BIDS T1w NIfTI" in result.stdout
 
 
+def test_orthohull_nifti_reports_missing_json_before_afni(tmp_path: Path) -> None:
+    image = tmp_path / "subject_T1w.nii"
+    image.touch()
+    result = run("orthohull", str(image))
+    assert result.returncode != 0
+    assert "JSON sidecar does not exist" in result.stderr
+
+
 def test_normalize_tail_statistics_and_compressed_view(tmp_path: Path) -> None:
     assert _tail_sd([-1.0, -3.0]) == pytest.approx((20.0 / 3.0) ** 0.5)
     prefix = tmp_path / "image+acpc"

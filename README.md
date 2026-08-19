@@ -51,6 +51,7 @@ tags:
 
 ```sh
 convert_json_fids_to_head sub-01_T1w.nii.gz
+convert_json_fids_to_head sub-01_T1w.nii
 convert_json_fids_to_head sub-01_T1w.nii.gz --output-dir afni --overwrite
 ```
 
@@ -63,6 +64,12 @@ from samsrcv5.fiducials import convert_json_fids_to_head
 
 brik, head = convert_json_fids_to_head("sub-01_T1w.nii.gz")
 ```
+
+The packaged `orthohull` and `orthohull.py` commands perform this conversion
+automatically for `.nii` and `.nii.gz` inputs. The matching JSON sidecar must
+contain valid NAS, LPA, and RPA coordinates. The generated AFNI HEAD/BRIK pair
+is kept in a private temporary directory and removed when `orthohull` exits,
+including after an error.
 
 ## SAM input and output directories
 

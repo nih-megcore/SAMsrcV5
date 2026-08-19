@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import getopt
 import os
 import runpy
 import subprocess
 import sys
+import tempfile
 from importlib.resources import as_file, files
 from pathlib import Path
 from typing import NoReturn
@@ -64,6 +66,44 @@ def _legacy(name: str) -> None:
                 pass
 
 
+def _orthohull_nifti_argument(argv: list[str]) -> tuple[int, Path] | None:
+    try:
+        _options, arguments = getopt.getopt(argv[1:], "cqmtop:i:x:")
+    except getopt.GetoptError:
+        return None
+    if len(arguments) not in {1, 2}:
+        return None
+    image = Path(arguments[0])
+    if not (image.name.endswith(".nii") or image.name.endswith(".nii.gz")):
+        return None
+    return len(argv) - len(arguments), image
+
+
+def _run_orthohull() -> None:
+    nifti_argument = _orthohull_nifti_argument(sys.argv)
+    if nifti_argument is None:
+        _legacy("orthohull.py")
+        return
+
+    from .fiducials import FiducialConversionError, convert_json_fids_to_head
+
+    argument_index, image = nifti_argument
+    original_argv = sys.argv
+    with tempfile.TemporaryDirectory(prefix="samsrcv5-orthohull-") as temporary:
+        try:
+            _brik, head = convert_json_fids_to_head(image, temporary)
+        except FiducialConversionError as error:
+            raise SystemExit(f"orthohull: error: {error}") from error
+
+        converted_argv = original_argv.copy()
+        converted_argv[argument_index] = str(head)
+        sys.argv = converted_argv
+        try:
+            _legacy("orthohull.py")
+        finally:
+            sys.argv = original_argv
+
+
 def stats_1d() -> NoReturn:
     _native("1dstats")
 
@@ -117,11 +157,11 @@ def mk_gii_atlas() -> None:
 
 
 def orthohull() -> None:
-    _legacy("orthohull.py")
+    _run_orthohull()
 
 
 def orthohull_python() -> None:
-    _legacy("orthohull.py")
+    _run_orthohull()
 
 
 def plothull() -> None:

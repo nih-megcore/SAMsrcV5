@@ -25,9 +25,12 @@ class FiducialConversionError(RuntimeError):
 
 def _input_paths(t1w_nii: str | Path) -> tuple[Path, Path, str]:
     image = Path(t1w_nii)
-    if not image.name.endswith(".nii.gz"):
-        raise FiducialConversionError("input filename must end with .nii.gz")
-    stem = image.name.removesuffix(".nii.gz")
+    if image.name.endswith(".nii.gz"):
+        stem = image.name.removesuffix(".nii.gz")
+    elif image.name.endswith(".nii"):
+        stem = image.name.removesuffix(".nii")
+    else:
+        raise FiducialConversionError("input filename must end with .nii or .nii.gz")
     sidecar = image.with_name(f"{stem}.json")
     if not image.is_file():
         raise FiducialConversionError(f"NIfTI file does not exist: {image}")
@@ -226,7 +229,9 @@ def main() -> None:
             "Convert a BIDS T1w NIfTI and JSON fiducials to AFNI BRIK/HEAD files."
         ),
     )
-    parser.add_argument("t1w_nii", type=Path, help="BIDS T1w image ending in .nii.gz")
+    parser.add_argument(
+        "t1w_nii", type=Path, help="BIDS T1w image ending in .nii or .nii.gz"
+    )
     parser.add_argument(
         "-o",
         "--output-dir",

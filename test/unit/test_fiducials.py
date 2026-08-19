@@ -15,8 +15,12 @@ from samsrcv5 import fiducials
 pytestmark = pytest.mark.unit
 
 
-def write_bids_t1w(tmp_path: Path, landmarks: dict[str, list[float]]) -> Path:
-    image = tmp_path / "sub-01_T1w.nii.gz"
+def write_bids_t1w(
+    tmp_path: Path,
+    landmarks: dict[str, list[float]],
+    suffix: str = ".nii.gz",
+) -> Path:
+    image = tmp_path / f"sub-01_T1w{suffix}"
     affine = np.array(
         [
             [-2.0, 0.0, 0.0, 10.0],
@@ -55,12 +59,14 @@ def install_fake_3dcopy(monkeypatch: pytest.MonkeyPatch) -> list[list[str]]:
     return calls
 
 
+@pytest.mark.parametrize("suffix", [".nii", ".nii.gz"])
 def test_conversion_uses_the_input_affine_and_writes_afni_tags(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, suffix: str
 ) -> None:
     image = write_bids_t1w(
         tmp_path,
         {"NAS": [1, 2, 3], "LPA": [4, 5, 6], "RPA": [7, 8, 9]},
+        suffix,
     )
     calls = install_fake_3dcopy(monkeypatch)
 
@@ -136,12 +142,29 @@ def test_missing_afni_is_reported_at_conversion_time(
 
 
 def test_input_filename_and_sidecar_are_validated(tmp_path: Path) -> None:
-    with pytest.raises(fiducials.FiducialConversionError, match="end with .nii.gz"):
-        fiducials.convert_json_fids_to_head(tmp_path / "sub-01_T1w.nii")
+    with pytest.raises(fiducials.FiducialConversionError, match=r"\.nii or \.nii\.gz"):
+        fiducials.convert_json_fids_to_head(tmp_path / "sub-01_T1w.img")
 
-    image = tmp_path / "sub-01_T1w.nii.gz"
+    for name in ("sub-01_T1w.nii", "sub-02_T1w.nii.gz"):
+        image = tmp_path / name
+        nib.save(nib.Nifti1Image(np.zeros((2, 2, 2)), np.eye(4)), image)
+        with pytest.raises(fiducials.FiducialConversionError, match="JSON sidecar"):
+            fiducials.convert_json_fids_to_head(image)
+
+
+def test_malformed_json_is_rejected_before_running_afni(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    image = tmp_path / "sub-01_T1w.nii"
     nib.save(nib.Nifti1Image(np.zeros((2, 2, 2)), np.eye(4)), image)
-    with pytest.raises(fiducials.FiducialConversionError, match="JSON sidecar"):
+    image.with_name("sub-01_T1w.json").write_text("{", encoding="utf-8")
+    monkeypatch.setattr(
+        fiducials.subprocess,
+        "run",
+        lambda *args, **kwargs: pytest.fail("3dcopy should not run"),
+    )
+
+    with pytest.raises(fiducials.FiducialConversionError, match="could not read JSON"):
         fiducials.convert_json_fids_to_head(image)
 
 
