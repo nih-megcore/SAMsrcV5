@@ -125,7 +125,6 @@ int main(
     static int      aflg = FALSE;           // take absolute value of voxels
     static int      bflg = FALSE;           // baseline removal flag
     static int      eflg = FALSE;           // command-line error flag
-    static int      mflg = FALSE;           // parameter file name flag
     static int      pflg = FALSE;           // polarity correction flag
     static int      rflg = FALSE;           // dataset name flag
     static int      vflg = FALSE;           // verbose mode flag
@@ -193,14 +192,13 @@ int main(
     }
 #endif
     vflg = get_parm("verbose")->set;
-    mflg = get_parm("param")->set;
     aflg = get_parm("Absolute")->set;
 #if BTI
-    if (eflg || !rflg || !dflg || !mflg) {
+    if (eflg || !rflg || !dflg) {
 #else
-    if (eflg || !rflg || !mflg) {
+    if (eflg || !rflg) {
 #endif
-        msg("dataset (-r) and parameter file (-m) are required\n");
+        msg("dataset (-r) is required\n");
         do_help();
     }
 

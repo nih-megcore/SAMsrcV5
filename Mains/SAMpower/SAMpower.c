@@ -96,7 +96,6 @@ int main(
     int             tid;                // thread id
     int             NumImg;             // number of SAM images
     int             eflg = FALSE;       // command-line error flag
-    int             mflg = FALSE;       // analysis parameter file flag
     int             rflg = FALSE;       // dataset name flag
     int             gflg = FALSE;       // gifti format Atlas
     int             vflg = FALSE;       // verbose mode flag
@@ -169,15 +168,12 @@ int main(
 #endif
     p = get_parm("verbose");
     vflg = p->set;
-    p = get_parm("param");
-    mflg = p->set;
-
 #if BTI
-    if(eflg || !rflg || !dflg || !mflg) {
+    if(eflg || !rflg || !dflg) {
 #else
-    if(eflg || !rflg || !mflg) {
+    if(eflg || !rflg) {
 #endif
-        msg("dataset (-r) and parameter file (-m) are required\n");
+        msg("dataset (-r) is required\n");
         do_help();  // doesn't return
     }
 
@@ -248,7 +244,7 @@ int main(
     if (Params.ImageMetric != HILBERT)
         Cleanup("ImageMetric must specify Hilbert");
     if (Params.TimeStep == -999.)
-        Cleanup("TimeStep specification missing from parameter file");
+        Cleanup("TimeStep must be specified");
     if (Params.CovType != GLOBAL_)
         Cleanup("CovType must be GLOBAL");
     if (Params.FilterType == IIR)

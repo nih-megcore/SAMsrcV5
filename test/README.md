@@ -65,8 +65,9 @@ cd /tmp
 6. Run `sam_wts` with the generated hull and an eighth-order Nolte model over
    a 64-voxel ROI. Require a `4×4×4×272` NIfTI weight volume and 64 finite
    condition-number values.
-7. Repeat covariance, weights, `sam_ers`, and `sam_3d` with separate SAM input
-   and output roots. Require a 3D+time ERS NIfTI image, companion noise files,
+7. Repeat covariance, weights, `sam_ers`, and `sam_3d` using command-line-only
+   parameters with separate SAM input and output roots. Require the `cmdline`
+   naming fallback, a 3D+time ERS NIfTI image, companion noise files,
    reconstructed run parameters, and no dataset-local `SAM` directory.
 8. Run `sam_3d`; require `4×4×4×1` IRP mean and variance NIfTI images with
    `[10,10,-10]` mm spacing. Aggregate nonzero statistics must remain within

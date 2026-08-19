@@ -63,6 +63,65 @@ def test_sam_ers_uses_current_parameter_parser() -> None:
     assert "badly formed number" in result.stderr
 
 
+@pytest.mark.parametrize("program", ["sam_3d", "sam_4d", "sam_ers", "sam_power"])
+def test_image_metric_is_available_on_command_line(program: str) -> None:
+    result = run(str(BIN / program), "--help")
+    assert result.returncode == 0
+    assert "--ImageMetric" in result.stdout + result.stderr
+
+
+@pytest.mark.parametrize(
+    ("program", "leading"),
+    [
+        ("sam_3d", ("--ImageMetric", "Power")),
+        ("sam_4d", ("--Marker", "stim", "-0.1", "0.3", "TRUE")),
+        ("sam_wts", ("--Model", "Nolte")),
+        ("sam_wts", ("--ImageFormat", "ORIG")),
+    ],
+)
+def test_variable_length_options_do_not_consume_following_options(
+    program: str, leading: tuple[str, ...]
+) -> None:
+    result = run(str(BIN / program), *leading, "--CovBand", "bad", "70")
+    assert result.returncode != 0
+    assert "--CovBand: badly formed number 'bad'" in result.stderr
+
+
+def test_complex_image_metric_does_not_consume_following_options() -> None:
+    result = run(
+        str(BIN / "sam_4d"),
+        "--ImageMetric",
+        "RankVectorEntropy",
+        "0.01",
+        "3",
+        "--CovBand",
+        "bad",
+        "70",
+    )
+    assert result.returncode != 0
+    assert "--CovBand: badly formed number 'bad'" in result.stderr
+
+
+def test_marker_option_can_be_repeated() -> None:
+    result = run(
+        str(BIN / "sam_4d"),
+        "--Marker",
+        "stim",
+        "-0.1",
+        "0.3",
+        "TRUE",
+        "--Marker",
+        "control",
+        "-0.2",
+        "0.4",
+        "FALSE",
+        "--TimeStep",
+        "bad",
+    )
+    assert result.returncode != 0
+    assert "--TimeStep: badly formed number 'bad'" in result.stderr
+
+
 def test_sam_directory_option_requires_an_argument() -> None:
     result = run(str(BIN / "sam_cov"), "-i_SAMdir")
     assert result.returncode != 0

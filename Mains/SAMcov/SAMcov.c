@@ -113,7 +113,6 @@ int main(
     int             TotSegments;    // number of time segments in final specs
     int             SumSegments;    // number of time segments in sum covariance
     static int      eflg = FALSE;   // error flag
-    static int      mflg = FALSE;   // parameter file specification flag
     static int      nflg = FALSE;   // noise covariance filter flag
     static int      oflg = FALSE;   // orientation filter flag
     static int      pflg = FALSE;   // use pseudo-inverse and skip lowest eigenvalues of covariance
@@ -182,8 +181,6 @@ int main(
 #endif
     p = get_parm("verbose");
     vflg = p->set;
-    p = get_parm("param");
-    mflg = p->set;
     p = get_parm("Pinv");
     pflg = p->set;
     if (pflg) {
@@ -191,11 +188,11 @@ int main(
     }
 
 #if BTI
-    if (!rflg || !dflg || !mflg || eflg) {
+    if (!rflg || !dflg || eflg) {
 #else
-    if (!rflg || !mflg || eflg) {
+    if (!rflg || eflg) {
 #endif
-        msg("dataset (-r) and parameter file (-m) are required\n");
+        msg("dataset (-r) is required\n");
         do_help();  // doesn't return
     }
 
@@ -979,10 +976,7 @@ int main(
             // set up generic covariance header & write the covariance matrix
             CovHeader.Version = SAM_REV;
             sprintf(CovHeader.SetName, "%s", Header.SetName);
-            if (mflg)
-                sprintf(CovHeader.SpecName, "%s", CovName);
-            else
-                sprintf(CovHeader.SpecName, "NONE");
+            sprintf(CovHeader.SpecName, "%s", CovName);
             CovHeader.NumChans = M;
             switch (n) {
                 case ORIENT_:

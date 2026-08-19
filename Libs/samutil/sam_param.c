@@ -16,7 +16,7 @@ PARM_TABLE Parm_table[] = {
     { 0, "%include", NULL, includefn, "", "", NULL },
 
     { 1, "NumMarkers", NULL, intfn, "N", "number of markers (deprecated)", NULL },
-    { 0, "Marker", NULL, markerfn, "MARKNAME T0 T1 SUMFLAG [COVNAME]", "marker name, time window relative to marker,\nwhether to include this marker in the\nSUM covariance (TRUE|FALSE), and an optional name\nto use instead of the marker name", NULL },
+    { 1, "Marker", NULL, markerfn, "MARKNAME T0 T1 SUMFLAG [COVNAME]", "marker name, time window relative to marker,\nwhether to include this marker in the\nSUM covariance (TRUE|FALSE), and an optional name\nto use instead of the marker name", NULL },
 
     //{ 1, "MarkFile", NULL, markfilefn, "MARKNAME FILE T0 T1 SUMFLAG", "file containing 'trial time' lines for a mark", NULL },
     { 1, "SegFile", NULL, segfilefn, "MARKNAME FILE SUMFLAG", "file containing 'trial T0 T1' lines for a segment", NULL },
@@ -57,7 +57,7 @@ PARM_TABLE Parm_table[] = {
     { 1, "WtsName", "W", stringfn, "NAME", "use this name for weights file names", NULL },
     { 1, "OutName", "N", stringfn, "NAME", "use this name instead of the parameter file name\nin output file names", NULL },
 
-    { 0, "ImageFormat", NULL, imgformatfn, "ORIG|TLRC RES", "original (default) or TLRC transform with\nRES (mm) sized voxels", NULL },
+    { 1, "ImageFormat", NULL, imgformatfn, "ORIG|TLRC RES", "original (default) or TLRC transform with\nRES (mm) sized voxels", NULL },
     { 1, "MaskName", NULL, stringfn, "MASKFILE", "mask filename for TLRC transform", NULL },
 
     { 1, "Normalize", "n", boolfn, NULL, "normalize the output", NULL },
@@ -74,8 +74,8 @@ PARM_TABLE Parm_table[] = {
 
     { 1, "Mu", "u", mufn, "[+|*]MU", "regularization adds a constant (+) or scaled (*)\nnoise to the diagonal of the covariance matrix", NULL },
 
-    { 0, "Model", NULL, modelfn, "SingleSphere x y z|MultiSphere|Nolte", "forward solution type", NULL },
-    { 0, "ImageMetric", NULL, imgmetricfn, "METRICSPEC", "imaging metric", NULL },
+    { 1, "Model", NULL, modelfn, "SingleSphere x y z|MultiSphere|Nolte [ORDER]", "forward solution type", NULL },
+    { 1, "ImageMetric", NULL, imgmetricfn, "METRICSPEC", "imaging metric", NULL },
     { 1, "doMultiSphere", NULL, boolfn, NULL, "set Model to MultiSphere", NULL },
     { 1, "doNolte", NULL, boolfn, NULL, "set Model to Nolte", NULL },
     { 1, "Order", NULL, intfn, "ORDER", "spherical harmonic order for Nolte solution", NULL },
@@ -124,7 +124,7 @@ void new_params(PARMINFO *Params)
     Params->DataSetName = NULL;             // argument to -r
     Params->InputSAMDirectory = NULL;       // default is <dataset>/SAM
     Params->OutputSAMDirectory = NULL;      // default is <dataset>/SAM
-    Params->ParmName = NULL;                // basename of parameter file
+    Params->ParmName = "cmdline";           // parameter basename or command-line default
     Params->NumMark = 0;                    // number of markers
     Params->Marker = NULL;                  // marker info
     Params->BaseStart = -999.;              // baseline window start

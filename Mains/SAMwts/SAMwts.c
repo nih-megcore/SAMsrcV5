@@ -155,7 +155,6 @@ int main(
     static int      bflg = FALSE;       // forward solution flag
     static int      eflg = FALSE;       // command-line error flag
     static int      iflg = FALSE;       // interpolation flag
-    static int      mflg = FALSE;       // parameter file flag
     static int      pflg = FALSE;       // use pseudo-inverse
     static int      rflg = FALSE;       // dataset name flag
     static int      tflg = FALSE;       // target file flag
@@ -261,9 +260,6 @@ int main(
 #endif
     p = get_parm("verbose");
     vflg = p->set;
-    p = get_parm("param");
-    mflg = p->set;
-
     p = get_parm("Normalize");      // -n
     wflg = p->set;
     p = get_parm("Field");          // -B
@@ -275,11 +271,11 @@ int main(
     }
 
 #if BTI
-    if (eflg || !rflg || !dflg || !mflg) {
+    if (eflg || !rflg || !dflg) {
 #else
-    if (eflg || !rflg || !mflg) {
+    if (eflg || !rflg) {
 #endif
-        msg("dataset (-r) and parameter file (-m) are required\n");
+        msg("dataset (-r) is required\n");
         do_help();  // doesn't return
     }
 
@@ -469,7 +465,7 @@ int main(
 
     // define forward solution model
     if (Params.Model == -1)
-        Cleanup("'Model' specification missing from parameter file");
+        Cleanup("'Model' must be specified");
     if (vflg) {
         printf("modeling forward solution using ");
     }

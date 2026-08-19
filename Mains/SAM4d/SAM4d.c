@@ -136,7 +136,6 @@ int main(
     int             *vidx;          // array for shuffling voxel indices
     int             bflg = FALSE;   // baseline removal flag
     int             eflg = FALSE;   // command-line error flag
-    int             mflg = FALSE;   // marker parameter file name flag
     int             nflg = FALSE;   // use noise covariance file
     int             rflg = FALSE;   // run name flag
     int             gflg = FALSE;   // gifti format Atlas
@@ -221,15 +220,12 @@ int main(
 #endif
     p = get_parm("verbose");
     vflg = p->set;
-    p = get_parm("param");
-    mflg = p->set;
-
 #if BTI
-    if(eflg || !rflg || !dflg || !mflg) {
+    if(eflg || !rflg || !dflg) {
 #else
-    if(eflg || !rflg || !mflg) {
+    if(eflg || !rflg) {
 #endif
-        msg("dataset (-r) and parameter file (-m) are required\n");
+        msg("dataset (-r) is required\n");
         do_help();  // doesn't return
     }
 

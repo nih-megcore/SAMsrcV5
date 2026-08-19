@@ -85,6 +85,25 @@ parents are created automatically. `InputSAMDirectory` and
 `OutputSAMDirectory` provide the same settings in parameter files, while an
 explicit `ImageDirectory` continues to control final image placement.
 
+Parameter files are optional for `sam_cov`, `sam_wts`, `sam_3d`, `sam_4d`,
+`sam_ers`, and `sam_power` when all required analysis parameters are supplied
+on the command line. Parameters with multiple values retain their parameter-file
+spelling as long options:
+
+```sh
+sam_3d -r FILENAME.ds \
+    --InputSAMDirectory /work/weights \
+    --OutputSAMDirectory /work/images \
+    --Marker stim -0.1 0.3 TRUE \
+    --CovBand 13 35 --ImageBand 13 35 \
+    --CovType GLOBAL --ImageMetric Power
+```
+
+Without `-m`, `cmdline` is used in place of the parameter-file basename for
+input and output names. Use `--OutName`, `--CovName`, or `--WtsName` when the
+run should use another name. Command-line values continue to override values
+from a supplied parameter file.
+
 ## SAM parameter editor
 
 Run `sam_param_gui` to create or edit parameter files for `sam_cov`, `sam_wts`,

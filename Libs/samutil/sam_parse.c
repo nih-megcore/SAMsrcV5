@@ -600,7 +600,7 @@ int helpfn(int argc, char **argv, int i, PARM *unused)
                 if (strcmp(p->key, "Marker") == 0) {
                     if (!m) {
                         m = TRUE;
-                        snprintf(buf, sizeof(buf), "Marker %s", p->arg_help);
+                        snprintf(buf, sizeof(buf), "%sMarker %s", dash, p->arg_help);
                     } else {
                         continue;
                     }
@@ -902,35 +902,39 @@ int includefn(int argc, char **argv, int i, PARM *p)
 
 int markerfn(int argc, char **argv, int i, PARM *p)
 {
+    int j;
     int n;
     char *s;
     MARKINFO *m;
 
-    if (argc < 5) {
-        fatalerr("missing arguments for \"%s\"", argv[0]);
+    if (i + 3 >= argc) {
+        fatalerr("missing arguments for \"%s\"", argv[i-1]);
     }
 
     m = new(MARKINFO);
-    m->MarkName = copy_string(argv[1]);
+    m->MarkName = copy_string(argv[i]);
     m->MarkName2 = NULL;
-    m->MarkStart = strtod(argv[2], &s);
+    m->MarkStart = strtod(argv[i+1], &s);
     if (*s != '\0') {
-        fatalerr("badly formed T0 for \"%s\"", argv[0]);
+        fatalerr("badly formed T0 for \"%s\"", argv[i-1]);
     }
-    m->MarkEnd = strtod(argv[3], &s);
+    m->MarkEnd = strtod(argv[i+2], &s);
     if (*s != '\0') {
-        fatalerr("badly formed T1 for \"%s\"", argv[0]);
+        fatalerr("badly formed T1 for \"%s\"", argv[i-1]);
     }
-    n = strlen(argv[4]);
-    if (strncasecmp(argv[4], "TRUE", n) == 0) {
+    n = strlen(argv[i+3]);
+    if (strncasecmp(argv[i+3], "TRUE", n) == 0) {
         m->Sum = TRUE;
-    } else if (strncasecmp(argv[4], "FALSE", n) == 0) {
+    } else if (strncasecmp(argv[i+3], "FALSE", n) == 0) {
         m->Sum = FALSE;
     } else {
-        fatalerr("SUMFLAG must be TRUE or FALSE for \"%s\"", argv[0]);
+        fatalerr("SUMFLAG must be TRUE or FALSE for \"%s\"", argv[i-1]);
     }
-    if (argc == 6) {
-        m->MarkName2 = copy_string(argv[5]);
+    j = 4;
+    if (i + 4 < argc && !(argv[i+4][0] == '-' &&
+                          (isalpha(argv[i+4][1]) || argv[i+4][1] == '-'))) {
+        m->MarkName2 = copy_string(argv[i+4]);
+        j++;
     }
     m->SegFile = FALSE;
     m->FileName = NULL;     /* not a segfile */
@@ -938,7 +942,7 @@ int markerfn(int argc, char **argv, int i, PARM *p)
     p->ptr = m;
     p->set = TRUE;
 
-    return argc - 1;
+    return j;
 }
 
 /* SegFile name file sumflag. */
@@ -948,30 +952,30 @@ int segfilefn(int argc, char **argv, int i, PARM *p)
     int n;
     MARKINFO *m;
 
-    if (argc != 4) {
-        fatalerr("usage: %s markname filename sumflag", argv[0]);
+    if (i + 2 >= argc) {
+        fatalerr("usage: %s markname filename sumflag", argv[i-1]);
     }
 
     m = new(MARKINFO);
-    m->MarkName = copy_string(argv[1]);
+    m->MarkName = copy_string(argv[i]);
     m->MarkName2 = NULL;
     m->MarkStart = 0;
     m->MarkEnd = 0;
-    n = strlen(argv[3]);
-    if (strncasecmp(argv[3], "TRUE", n) == 0) {
+    n = strlen(argv[i+2]);
+    if (strncasecmp(argv[i+2], "TRUE", n) == 0) {
         m->Sum = TRUE;
-    } else if (strncasecmp(argv[3], "FALSE", n) == 0) {
+    } else if (strncasecmp(argv[i+2], "FALSE", n) == 0) {
         m->Sum = FALSE;
     } else {
-        fatalerr("SUMFLAG must be TRUE or FALSE for \"%s\"", argv[0]);
+        fatalerr("SUMFLAG must be TRUE or FALSE for \"%s\"", argv[i-1]);
     }
     m->SegFile = TRUE;
-    m->FileName = copy_string(argv[2]);
+    m->FileName = copy_string(argv[i+1]);
 
     p->ptr = m;
     p->set = TRUE;
 
-    return argc - 1;
+    return 3;
 }
 
 /* ImageFormat takes a string and a double. */
@@ -982,27 +986,31 @@ int imgformatfn(int argc, char **argv, int i, PARM *p)
     char *s;
     IMGFORMAT *imf;
 
-    if (argc > 1) {
-        imf = new(IMGFORMAT);
-        imf->fmt = copy_string(argv[i]);
-        if (strcasecmp(imf->fmt, "TLRC") == 0) {    // abbr not allowed
-            if (argc == 3) {
-                d = strtod(argv[i+1], &s);
-                if (*s != '\0') {
-                    fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+1]);
-                }
-                imf->res = d;
-            } else {
-                fatalerr("image resolution required for ImageFormat TLRC");
-            }
-        } else if (strcasecmp(imf->fmt, "ORIG") != 0 && strcasecmp(imf->fmt, "ORTHO") != 0) {
-            fatalerr("ImageFormat must be ORIG or TLRC");
+    REQ1();
+
+    imf = new(IMGFORMAT);
+    imf->fmt = copy_string(argv[i]);
+    if (strcasecmp(imf->fmt, "TLRC") == 0) {    // abbr not allowed
+        if (i + 1 >= argc) {
+            fatalerr("image resolution required for ImageFormat TLRC");
         }
+        d = strtod(argv[i+1], &s);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+1]);
+        }
+        imf->res = d;
         p->ptr = imf;
         p->set = TRUE;
+        return 2;
     }
+    if (strcasecmp(imf->fmt, "ORIG") != 0 &&
+        strcasecmp(imf->fmt, "ORTHO") != 0) {
+        fatalerr("ImageFormat must be ORIG or TLRC");
+    }
+    p->ptr = imf;
+    p->set = TRUE;
 
-    return argc - 1;
+    return 1;
 }
 
 /* Mu value, for regularization. */
@@ -1045,31 +1053,42 @@ int mufn(int argc, char **argv, int i, PARM *p)
 
 int modelfn(int argc, char **argv, int i, PARM *p)
 {
+    int j;
     int n;
-    int j = argc - 1;
-    char *arg;
+    char *arg, *s;
     MODELINFO *m;
 
+    REQ1();
     arg = argv[i];
     n = strlen(arg);
+    j = 1;
 
     m = new(MODELINFO);
 
     if (strncasecmp(arg, "SingleSphere", n) == 0) {
-        if (argc != 5) {
+        if (i + 3 >= argc) {
             fatalerr("improper sphere specification");
         }
         m->model = SSPHERE;
-        m->sphere[0] = strtod(argv[i+1], NULL); // @@@ should add error checks
-        m->sphere[1] = strtod(argv[i+2], NULL);
-        m->sphere[2] = strtod(argv[i+3], NULL);
+        for (j = 0; j < 3; j++) {
+            m->sphere[j] = strtod(argv[i+j+1], &s);
+            if (*s != '\0') {
+                fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+j+1]);
+            }
+        }
+        j = 4;
     } else if (strncasecmp(arg, "MultiSphere", n) == 0) {
         m->model = MSPHERE;
     } else if (strncasecmp(arg, "Nolte", n) == 0) {
         m->model = NOLTE;
         m->order = -1;
-        if (argc >= 3) {
-            m->order = strtod(argv[i+1], NULL);
+        if (i + 1 < argc && !(argv[i+1][0] == '-' &&
+                              (isalpha(argv[i+1][1]) || argv[i+1][1] == '-'))) {
+            m->order = strtol(argv[i+1], &s, 10);
+            if (*s != '\0') {
+                fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+1]);
+            }
+            j = 2;
         }
     } else {
         fatalerr("Model must be SingleSphere x y z (cm), MultiSphere, or Nolte");
@@ -1084,10 +1103,12 @@ int modelfn(int argc, char **argv, int i, PARM *p)
 int imgmetricfn(int argc, char **argv, int i, PARM *p)
 {
     int n;
-    int j = argc - 1;
-    char *arg;
+    int j = 1;
+    char *arg, *s;
+    long l;
     METRICINFO *m;
 
+    REQ1();
     arg = argv[i];
     n = strlen(arg);
 
@@ -1102,37 +1123,72 @@ int imgmetricfn(int argc, char **argv, int i, PARM *p)
     } else if (strncasecmp(arg, "Kurtosis", n) == 0) {
         m->metric = KURTOSIS;
     } else if (strncasecmp(arg, "MutualInfo", n) == 0) {
-        if (argc != 4) {
+        if (i + 2 >= argc) {
             fatalerr("%s takes 2 arguments", argv[i]);
         }
         m->metric = MUT_INFO;
-        m->lags = strtod(argv[i+1], NULL); // @@@ should add error checks
-        m->dims = atoi(argv[i+2]);
+        m->lags = strtod(argv[i+1], &s);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+1]);
+        }
+        l = strtol(argv[i+2], &s, 10);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+2]);
+        }
+        m->dims = (int)l;
+        j = 3;
 // #if 0
     } else if (strncasecmp(arg, "RankVectorEntropy", n) == 0) {
-        if (argc != 4) {
+        if (i + 2 >= argc) {
             fatalerr("%s takes 2 arguments", argv[i]);
         }
         m->metric = RV_ENTROPY;
-        m->tau = strtod(argv[i+1], NULL); // @@@ should add error checks
-        m->dims = atoi(argv[i+2]);
+        m->tau = strtod(argv[i+1], &s);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+1]);
+        }
+        l = strtol(argv[i+2], &s, 10);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+2]);
+        }
+        m->dims = (int)l;
+        j = 3;
     } else if (strncasecmp(arg, "SpectEntropy", n) == 0) {
         m->metric = S_ENTROPY;
     } else if (strncasecmp(arg, "TransferEntropy", n) == 0) {
-        if (argc != 4) {
+        if (i + 2 >= argc) {
             fatalerr("%s takes 2 arguments", argv[i]);
         }
         m->metric = ST_ENTROPY;
-        m->lags = strtod(argv[i+1], NULL); // @@@ should add error checks
-        m->dims = atoi(argv[i+2]);
+        m->lags = strtod(argv[i+1], &s);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+1]);
+        }
+        l = strtol(argv[i+2], &s, 10);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+2]);
+        }
+        m->dims = (int)l;
+        j = 3;
     } else if (strncasecmp(arg, "ConditionalEntropy", n) == 0) {
-        if (argc != 5) {
+        if (i + 3 >= argc) {
             fatalerr("%s takes 3 arguments", argv[i]);
         }
         m->metric = RVC_ENTROPY;
-        m->tau = strtod(argv[i+1], NULL); // @@@ should add error checks
-        m->lags = strtod(argv[i+2], NULL);
-        m->dims = atoi(argv[i+3]);
+        m->tau = strtod(argv[i+1], &s);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+1]);
+        }
+        m->lags = strtod(argv[i+2], &s);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+2]);
+        }
+        l = strtol(argv[i+3], &s, 10);
+        if (*s != '\0') {
+            fatalerr("%s: badly formed number '%s'", argv[i-1], argv[i+3]);
+        }
+        m->dims = (int)l;
+        j = 4;
 // #endif
     } else {
         msg("unknown image metric '%s'\n", argv[i]);
