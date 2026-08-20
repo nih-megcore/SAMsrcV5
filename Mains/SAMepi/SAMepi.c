@@ -64,6 +64,7 @@ int main(
     FFTSPEC         DataFFT;                // FFT data filter structure
     FFTSPEC         NotchFFT;               // optional notch filter
     PARMINFO        Params;                 // analysis parameters
+    PARM            *p;                     // active parameter
     HeaderInfo      Header;                 // MEG data header
     ChannelInfo     *Channel;               // MEG channel info
     EpochInfo       *Epoch;                 // MEG epoch info
@@ -110,7 +111,6 @@ int main(
     int             mflg = FALSE;           // parameter file specification flag
     int             rflg = FALSE;           // dataset name flag
     int             vflg = FALSE;           // verbose mode flag
-    int             wflg = FALSE;           // SAM weight flag
     int             zflg = FALSE;           // zero voxel flag
     char            fpath[256];             // general path name
     char            *DSName = NULL;         // dataset name
@@ -118,10 +118,8 @@ int main(
     char            InputSAMDir[256];       // SAM input root
     char            OutputSAMDir[256];      // SAM output root
     char            ImgDir[256];            // directory for output of SAMepi NIFTI image
-    char            ImgPath[256];           // full path for output NIFTI image
-    char            ImgName[256];
-    char            OutName[256];           // output file name
-    char            WtsName[256];
+    char            *OutName = NULL;         // output file name
+    char            *WtsName = NULL;         // input weight name
     char            Prefix[64];             // image file prefix
     char            FilterName[8];          // filter name -- IIR | FIR
     char            extension[4];           // extension
@@ -129,7 +127,7 @@ int main(
 
 #if BTI
     static int      dflg = FALSE;           // pdf file error flag
-    char            PDFName[256];           // pdf file name
+    char            *PDFName = NULL;         // pdf file name
 #else
     unsigned char   **Bad;                  // Bad[E][T] -- flags for bad samples
 #endif
@@ -215,7 +213,7 @@ int main(
         WtsName = (char *)p->ptr;
     }
 
-    Params.CovType = GLOBAL;        // global is the only choice
+    Params.CovType = GLOBAL_;       // global is the only choice
     Params.ImageMetric = KURTOSIS;  // kurtosis is the only choice
 
     // announce
@@ -273,12 +271,13 @@ int main(
     memset(Prefix, 0, sizeof(Prefix));
     memcpy(Prefix, DSName, Params.NumPrefix);
 
-    // set ImgDir & ImgPath
-    if (!strncmp(Params.DirName, "NULL", 4)) {      // if no Image directory name, use MRI directory
-        sprintf(ImgPath, "%s/%s,%s", Params.MRIdirectory, Prefix, OutName);
-    } else {                                        // else, use the image directory
-        sprintf(ImgPath, "%s/%s,%s", Params.DirName, Prefix, OutName);
-    }
+    // Write images to the requested directory, or to the standard SAM Image directory.
+    if (!strncmp(Params.DirName, "NULL", 4))
+        sprintf(ImgDir, "%s/Image", OutputSAMDir);
+    else
+        sprintf(ImgDir, "%s", Params.DirName);
+    if (makedirs(ImgDir) == -1)
+        Cleanup("can't create image directory '%s'", ImgDir);
 
     // get weight name from parameters & read SAM weights
     if (vflg) {
@@ -400,19 +399,18 @@ int main(
                 // (2) for each segment, compute excess kurtosis
                 for(d=dd=0; d<D; d++) {
                     ts = d * TW / 2;
-                    for(t=0, flag=FALSE; t<TW; t++) {
+                    flag = TRUE;
+                    for(t=0; t<TW; t++) {
                         tt = ts + t;
                         Win[t] = gsl_vector_get(vs, tt);
-#if BTI
-                        flag = TRUE;        // all samples in segment TRUE for BTI/4D -- no bad segment list
-#else
+#if !BTI
                         // convert tt to epoch & time offset to check Bad samples
                         e = tt / T;
-                        to = e * T - tt;
-                        if(Bad[e][to] == GOOD)
-                            flag = TRUE;    // segment is TRUE if _all_ samples in Win are good
-                        else
+                        to = tt - e * T;
+                        if(Bad[e][to] != GOOD) {
                             flag = FALSE;
+                            break;
+                        }
 #endif
                     }
                     if(flag == TRUE) {
@@ -465,7 +463,7 @@ int main(
         printf("writing SAM(Epi) image");
         fflush(stdout);
     }
-    sprintf(fpath, "%s/%s,%s.nii", ImgPath, DSName, ParmName);
+    sprintf(fpath, "%s/%s,%s.nii", ImgDir, Header.SetName, OutName);
     if((fp = fopen(fpath, "wb")) == NULL)
         Cleanup("can't open .nii file for write");
 
@@ -493,13 +491,6 @@ int main(
     if(fwrite((void *)Image, sizeof(float), V, fp) != V)
         Cleanup("can't write voxel values to .nii file");
     fclose(fp);
-
-    // create symbolic link from subject's MRI directory to Image subdirectory (this gives NIFTIpeak access to the file)
-    sprintf(ImgDir, "%s/Image/", OutputSAMDir);
-    if (makedirs(ImgDir) == -1)
-        Cleanup("can't create SAM image directory '%s'", ImgDir);
-    sprintf(ImgName, "%s/%s,%s.nii", ImgDir, DSName, ParmName);
-    symlink(fpath, ImgName);
 
     // that's all, folks!
     gsl_matrix_free(x);

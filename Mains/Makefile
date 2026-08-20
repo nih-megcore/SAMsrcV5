@@ -1,6 +1,6 @@
 include ../config/Makefile.local
 
-sprogs = SAMcov SAMwts SAM3d SAM4d SAMers SAMpower SAMsimulate OPMsim #SAMepi #PatchWts SAM3dc ROIwts SAM4dc
+sprogs = SAMcov SAMwts SAM3d SAM4d SAMers SAMepi SAMpower SAMsimulate OPMsim #PatchWts SAM3dc ROIwts SAM4dc
 
 mprogs = orthohull
 

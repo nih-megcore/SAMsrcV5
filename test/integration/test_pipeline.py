@@ -371,6 +371,37 @@ def validate_decoupled_sam_directories(work, mri_work, data_work, dataset_work):
     assert not (covariance_dir / "Global.nii").exists()
     assert not (dataset_work / "SAM").exists()
 
+    epi_parameter = work / "epi.param"
+    epi_parameter.write_text("CovBand 5 70\nImageBand 5 70\nTimeInt 2\n")
+    epi_root = work / "external" / "epi"
+    run(
+        [
+            "sam_epi",
+            "-r",
+            dataset_work.name,
+            "-m",
+            epi_parameter,
+            "-W",
+            "cmdline",
+            "-N",
+            "integration",
+            "-i_SAMdir",
+            weights_root,
+            "-o_SAMdir",
+            epi_root,
+        ],
+        data_work,
+        "sam-epi-decoupled",
+    )
+    epi_image = epi_root / "Image" / f"{dataset_work.stem},integration.nii"
+    assert epi_image.is_file()
+    assert [int(value) for value in afni_info(epi_image, "-n4")] == [4, 4, 4, 1]
+    epi_bytes = epi_image.read_bytes()
+    epi_offset = int(struct.unpack_from("<f", epi_bytes, 108)[0])
+    epi_values = np.frombuffer(epi_bytes, dtype="<f4", count=64, offset=epi_offset)
+    assert epi_values.shape == (64,)
+    assert np.isfinite(epi_values).all()
+
     ers_root = work / "external" / "ers"
     run(
         [

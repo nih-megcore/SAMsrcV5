@@ -9,7 +9,7 @@
 #define H_VERSION
 
 #define SAM_REV 3
-#define _VERSION_STR "5.0"
+#define _VERSION_STR "5.1.0"
 
 #if __SIZEOF_POINTER__ == 4
 #define PRG_REV "Version " _VERSION_STR " (32-bit)"

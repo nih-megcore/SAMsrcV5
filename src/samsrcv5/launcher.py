@@ -132,6 +132,10 @@ def sam_ers() -> NoReturn:
     _native("sam_ers")
 
 
+def sam_epi() -> NoReturn:
+    _native("sam_epi")
+
+
 def sam_power() -> NoReturn:
     _native("sam_power")
 

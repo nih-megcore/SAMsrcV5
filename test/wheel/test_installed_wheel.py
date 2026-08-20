@@ -36,8 +36,8 @@ def run(command: str, *args: str, input_text: str | None = None):
 
 
 def test_metadata_and_resources() -> None:
-    assert samsrcv5.__version__ == "5.0.0"
-    assert importlib.metadata.version("samsrcv5") == "5.0.0"
+    assert samsrcv5.__version__ == "5.1.0"
+    assert importlib.metadata.version("samsrcv5") == "5.1.0"
     root = importlib.resources.files("samsrcv5")
     for relative in (
         "data/master+orig.HEAD",
@@ -71,6 +71,7 @@ def test_all_console_entry_points_are_installed() -> None:
         "sam_3d",
         "sam_4d",
         "sam_cov",
+        "sam_epi",
         "sam_ers",
         "sam_param_gui",
         "sam_power",
@@ -87,11 +88,11 @@ def test_all_console_entry_points_are_installed() -> None:
 
 
 def test_native_help_and_error_contracts() -> None:
-    for command in ("sam_cov", "sam_wts", "sam_3d", "sam_4d", "sam_ers", "sam_power"):
+    for command in ("sam_cov", "sam_wts", "sam_3d", "sam_4d", "sam_epi", "sam_ers", "sam_power"):
         result = run(command, "-h")
         assert result.returncode == 0
         assert "Usage:" in result.stdout + result.stderr
-        assert "Version 5.0" in result.stdout + result.stderr
+        assert "Version 5.1.0" in result.stdout + result.stderr
     result = run("sam_cov", "--CovBand", "bad", "70")
     assert result.returncode != 0
     assert "badly formed number" in result.stderr

@@ -12,7 +12,7 @@ https://megcore.nih.gov/index.php?title=Source_Localization_-_SAM
 
 ## Installation
 
-SAMsrcV5 5.0.0 is packaged as a platform wheel containing the compiled SAM
+SAMsrcV5 5.1.0 is packaged as a platform wheel containing the compiled SAM
 programs and their FFTW/GSL runtime code. Installing a wheel does not require a
 C compiler, Make, FFTW, or GSL on the user's computer:
 
@@ -28,7 +28,7 @@ filename to `python -m pip install`.
 
 Wheels are built for Linux x86_64/aarch64, macOS x86_64/arm64, and Windows
 AMD64. The computational commands (`sam_cov`, `sam_wts`, `sam_3d`, `sam_4d`,
-`sam_ers`, `sam_power`, `sam_simulate`, and `OPMsim`) are native programs. AFNI workflows
+`sam_epi`, `sam_ers`, `sam_power`, `sam_simulate`, and `OPMsim`) are native programs. AFNI workflows
 such as `3dNormalize` and `orthohull` still require AFNI commands on `PATH`;
 `orthohull` also uses qhull. FreeSurfer tools and `ROIbuilder` likewise require
 FreeSurfer and PyGObject/GTK respectively.

@@ -31,6 +31,7 @@ def test_expected_build_artifacts_exist() -> None:
         "sam_3d",
         "sam_4d",
         "sam_cov",
+        "sam_epi",
         "sam_ers",
         "sam_power",
         "sam_simulate",
@@ -40,13 +41,13 @@ def test_expected_build_artifacts_exist() -> None:
     assert not missing, f"missing installed programs: {missing}"
 
 
-@pytest.mark.parametrize("program", ["sam_cov", "sam_wts", "sam_3d", "sam_4d", "sam_ers", "sam_power"])
+@pytest.mark.parametrize("program", ["sam_cov", "sam_wts", "sam_3d", "sam_4d", "sam_epi", "sam_ers", "sam_power"])
 def test_registered_program_help(program: str) -> None:
     result = run(str(BIN / program), "-h")
     assert result.returncode == 0
     output = result.stdout + result.stderr
     assert "Usage:" in output
-    assert "Version 5.0" in output
+    assert "Version 5.1.0" in output
     assert "-i_SAMdir SAMDIR" in output
     assert "-o_SAMdir SAMDIR" in output
 
@@ -59,6 +60,12 @@ def test_bad_numeric_argument_is_rejected() -> None:
 
 def test_sam_ers_uses_current_parameter_parser() -> None:
     result = run(str(BIN / "sam_ers"), "--TimeStep", "bad")
+    assert result.returncode != 0
+    assert "badly formed number" in result.stderr
+
+
+def test_sam_epi_uses_current_parameter_parser() -> None:
+    result = run(str(BIN / "sam_epi"), "--TimeInt", "bad")
     assert result.returncode != 0
     assert "badly formed number" in result.stderr
 
