@@ -1,5 +1,7 @@
 # SAMsrcV5
+[![Test](https://github.com/nih-megcore/SAMsrcV5/actions/workflows/test.yml/badge.svg)](https://github.com/nih-megcore/SAMsrcV5/actions/workflows/test.yml) [![Build wheel artifacts](https://github.com/nih-megcore/SAMsrcV5/actions/workflows/wheels.yml/badge.svg)](https://github.com/nih-megcore/SAMsrcV5/actions/workflows/wheels.yml)<br>
 Synthetic Aperture Magnetometry Suite Version 5
+
 
 This is a public release branch of the SAMsrcV5 suite of tools, used for
 source localization of CTF format MEG data.
