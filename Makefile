@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 CONF := $(shell cd config; ./configure)
 
 include config/Makefile.local
