@@ -53,6 +53,23 @@ def test_metadata_and_resources() -> None:
         assert any(dll_dir.glob("*.dll"))
 
 
+def test_optional_mne_interface_is_installed() -> None:
+    import mne
+    import numpy as np
+
+    from samsrcv5.mne import SAMNoise, estimate_sam_noise
+
+    names = [f"MEG{index:03d}" for index in range(6)]
+    covariance = mne.Covariance(
+        np.diag([10.0, 8.0, 6.0, 4.0, 2.0, 1.0]),
+        names,
+        [],
+        [],
+        nfree=100,
+    )
+    assert estimate_sam_noise(covariance, 20.0) == SAMNoise(4.0, 20.0)
+
+
 def test_all_console_entry_points_are_installed() -> None:
     expected = {
         "1dstats",

@@ -33,7 +33,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest>=8"]
+mne = ["mne>=1.5"]
+test = ["mne>=1.5", "pytest>=8"]
 
 [project.urls]
 Homepage = "https://megcore.nih.gov/index.php?title=Source_Localization_-_SAM"
@@ -100,7 +101,7 @@ testpaths = ["test"]
 build = "cp310-*"
 skip = "*-win32 *-manylinux_i686 *-musllinux_*"
 build-verbosity = 1
-test-requires = ["pytest>=8"]
+test-requires = ["mne>=1.5", "pytest>=8"]
 test-command = "python -m pytest {project}/test/wheel -q --import-mode=importlib"
 
 [tool.cibuildwheel.linux]

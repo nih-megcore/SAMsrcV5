@@ -23,10 +23,15 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
       - name: Install build and test dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install --yes ccache libfftw3-dev libgsl-dev python3-nibabel python3-pytest
+          sudo apt-get install --yes ccache libfftw3-dev libgsl-dev
+          python -m pip install "mne>=1.5" "nibabel>=5" "pytest>=8"
 
       - name: Restore compiler cache
         uses: actions/cache@v5

@@ -113,6 +113,52 @@ input and output names. Use `--OutName`, `--CovName`, or `--WtsName` when the
 run should use another name. Command-line values continue to override values
 from a supplied parameter file.
 
+## In-memory MNE interface
+
+The optional MNE-Python interface computes native-style SAM beamformer weights
+without invoking `sam_wts` or writing NIfTI, GIFTI, parameter, log, or
+intermediate files. It is an external Python adapter; the native SAM C code and
+command-line workflows are unchanged.
+
+Install the additional dependency with:
+
+```sh
+python -m pip install "samsrcv5[mne]"
+```
+
+The interface accepts precomputed MNE `Info`, `Forward`, and `Covariance`
+objects. A separate orientation covariance reproduces SAM's `Orient.cov`
+behavior; when it is omitted, the data covariance is used for both operations.
+
+```python
+import mne
+
+from samsrcv5.mne import estimate_sam_noise, make_sam_beamformer
+
+data_noise = estimate_sam_noise(data_cov, bandwidth_hz=65.0)
+orient_noise = estimate_sam_noise(orient_cov, bandwidth_hz=65.0)
+
+filters = make_sam_beamformer(
+    raw.info,
+    forward,
+    data_cov,
+    orient_cov=orient_cov,
+    data_noise=data_noise,
+    orient_noise=orient_noise,
+    mu=5.0,
+    mu_kind="additive",
+)
+source = mne.beamformer.apply_lcmv_raw(raw, filters)
+```
+
+One call creates one MNE `Beamformer`; call the function again for each
+condition covariance. Inputs must use a homogeneous set of non-reference MEG
+channels. Additive `mu` retains the SAM fT/root-Hz convention and therefore
+requires channels in tesla plus an effective bandwidth. Proportional `mu`
+works in the covariance's native units. Use `normalize=True` for SAM's global
+noise normalization, and `n_nulls` to remove the requested number of smallest
+covariance singular values.
+
 ## SAM parameter editor
 
 Run `sam_param_gui` to create or edit parameter files for `sam_cov`, `sam_wts`,
