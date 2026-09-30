@@ -3,7 +3,7 @@
 from importlib.metadata import PackageNotFoundError, version
 
 try:
-    __version__ = version("samsrcv5")
+    __version__ = version("samsrc")
 except PackageNotFoundError:  # Source-tree imports during development.
     __version__ = "5.1.0"
 

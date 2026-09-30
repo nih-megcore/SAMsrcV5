@@ -48,7 +48,7 @@ rebuild_install_wheel:
 	echo "Using Python: $$python_executable"; \
 	echo "Current samsrcv5 version: $$version"; \
 	shopt -s nullglob; \
-	wheels=(dist/samsrcv5-"$$version"-*.whl); \
+	wheels=(dist/samsrc-"$$version"-*.whl); \
 	if (( $${#wheels[@]} > 0 )); then \
 		echo "Current-version wheel(s) already exist:"; \
 		printf '  %s\n' "$${wheels[@]}"; \
@@ -67,9 +67,9 @@ rebuild_install_wheel:
 	fi; \
 	echo "Building samsrcv5 $$version wheel..."; \
 	python -m build --wheel; \
-	wheels=(dist/samsrcv5-"$$version"-*.whl); \
+	wheels=(dist/samsrc-"$$version"-*.whl); \
 	if (( $${#wheels[@]} != 1 )); then \
-		echo "Expected exactly one wheel for samsrcv5 $$version, found $${#wheels[@]}." >&2; \
+		echo "Expected exactly one wheel for samsrc $$version, found $${#wheels[@]}." >&2; \
 		printf '  %s\n' "$${wheels[@]}" >&2; \
 		exit 1; \
 	fi; \

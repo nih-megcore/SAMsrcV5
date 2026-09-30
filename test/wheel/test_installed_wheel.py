@@ -37,7 +37,7 @@ def run(command: str, *args: str, input_text: str | None = None):
 
 def test_metadata_and_resources() -> None:
     assert samsrcv5.__version__ == "5.1.0"
-    assert importlib.metadata.version("samsrcv5") == "5.1.0"
+    assert importlib.metadata.version("samsrc") == "5.1.0"
     root = importlib.resources.files("samsrcv5")
     for relative in (
         "data/master+orig.HEAD",
@@ -98,7 +98,7 @@ def test_all_console_entry_points_are_installed() -> None:
     scripts = {
         entry.name
         for entry in importlib.metadata.entry_points(group="console_scripts")
-        if entry.dist and entry.dist.name == "samsrcv5"
+        if entry.dist and entry.dist.name == "samsrc"
     }
     assert expected <= scripts
     assert callable(convert_json_fids_to_head)

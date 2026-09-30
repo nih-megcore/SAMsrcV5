@@ -123,7 +123,7 @@ command-line workflows are unchanged.
 Install the additional dependency with:
 
 ```sh
-python -m pip install "samsrcv5[mne]"
+python -m pip install "samsrc[mne]"
 ```
 
 The interface accepts precomputed MNE `Info`, `Forward`, and `Covariance`

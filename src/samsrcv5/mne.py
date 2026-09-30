@@ -22,7 +22,7 @@ try:
 except ModuleNotFoundError as error:  # pragma: no cover - exercised without extra
     raise ModuleNotFoundError(
         "The samsrcv5 MNE interface requires the optional dependency; "
-        "install it with 'samsrcv5[mne]'."
+        "install it with 'samsrc[mne]'."
     ) from error
 
 
