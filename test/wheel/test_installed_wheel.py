@@ -48,7 +48,7 @@ def test_metadata_and_resources() -> None:
         assert root.joinpath(relative).is_file(), relative
     if os.name == "nt":
         package_dir = Path(samsrcv5.__file__).resolve().parent
-        dll_dir = package_dir.parent / "samsrcv5.libs"
+        dll_dir = package_dir.parent / "samsrc.libs"
         assert dll_dir.is_dir()
         assert any(dll_dir.glob("*.dll"))
 
@@ -125,7 +125,7 @@ def test_1dstats_round_trip() -> None:
 def test_windows_native_path_includes_repaired_dlls(tmp_path: Path) -> None:
     executable = tmp_path / "site-packages/samsrcv5/_bin/sam_wts.exe"
     executable.parent.mkdir(parents=True)
-    dll_dir = tmp_path / "site-packages/samsrcv5.libs"
+    dll_dir = tmp_path / "site-packages/samsrc.libs"
     dll_dir.mkdir()
 
     search_path = _native_path(executable, "original-path", windows=True)

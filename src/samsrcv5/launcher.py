@@ -23,7 +23,7 @@ def _native_path(executable: Path, current_path: str, *, windows: bool) -> str:
         # delvewheel places the MinGW/OpenMP runtime DLLs beside the package
         # directory. Its import patch affects this Python process, but DLL
         # lookup for the executable child relies on PATH.
-        dll_dir = executable.parent.parent.parent / "samsrcv5.libs"
+        dll_dir = executable.parent.parent.parent / "samsrc.libs"
         if dll_dir.is_dir():
             native_paths.append(str(dll_dir))
     if current_path:
