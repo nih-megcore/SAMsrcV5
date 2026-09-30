@@ -3,7 +3,7 @@ requires = ["scikit-build-core>=0.11"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "samsrcv5"
+name = "samsrc"
 version = "5.1.0"
 description = "Synthetic Aperture Magnetometry Suite Version 5"
 readme = "README.md"
