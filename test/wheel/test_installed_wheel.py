@@ -37,8 +37,8 @@ def run(command: str, *args: str, input_text: str | None = None):
 
 
 def test_metadata_and_resources() -> None:
-    assert samsrc.__version__ == "5.1.0"
-    assert importlib.metadata.version("samsrc") == "5.1.0"
+    assert samsrc.__version__ == "5.1.0.1"
+    assert importlib.metadata.version("samsrc") == samsrc.__version__
     assert importlib.util.find_spec("samsrcv5") is None
     root = importlib.resources.files("samsrc")
     for relative in (
