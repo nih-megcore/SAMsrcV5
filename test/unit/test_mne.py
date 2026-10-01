@@ -5,7 +5,7 @@ import pytest
 
 mne = pytest.importorskip("mne")
 
-from samsrcv5.mne import SAMNoise, estimate_sam_noise, make_sam_beamformer
+from samsrc.mne import SAMNoise, estimate_sam_noise, make_sam_beamformer
 
 
 pytestmark = pytest.mark.unit

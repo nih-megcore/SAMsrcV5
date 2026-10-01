@@ -9,7 +9,7 @@ import nibabel as nib
 import numpy as np
 import pytest
 
-from samsrcv5 import fiducials
+from samsrc import fiducials
 
 
 pytestmark = pytest.mark.unit

@@ -14,7 +14,7 @@ from typing import NoReturn
 
 
 def _resource_path(*parts: str):
-    return files("samsrcv5").joinpath(*parts)
+    return files("samsrc").joinpath(*parts)
 
 
 def _native_path(executable: Path, current_path: str, *, windows: bool) -> str:
@@ -37,7 +37,7 @@ def _native(name: str) -> NoReturn:
     with as_file(resource) as executable:
         executable = Path(executable)
         if not executable.is_file():
-            raise SystemExit(f"samsrcv5 installation is missing {filename}")
+            raise SystemExit(f"samsrc installation is missing {filename}")
         argv = [str(executable), *sys.argv[1:]]
         env = os.environ.copy()
         env["PATH"] = _native_path(
@@ -89,7 +89,7 @@ def _run_orthohull() -> None:
 
     argument_index, image = nifti_argument
     original_argv = sys.argv
-    with tempfile.TemporaryDirectory(prefix="samsrcv5-orthohull-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="samsrc-orthohull-") as temporary:
         try:
             _brik, head = convert_json_fids_to_head(image, temporary)
         except FiducialConversionError as error:

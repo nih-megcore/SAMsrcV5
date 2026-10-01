@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.metadata
 import importlib.resources
+import importlib.util
 import os
 import shutil
 import subprocess
@@ -9,10 +10,10 @@ import sysconfig
 from pathlib import Path
 
 import pytest
-import samsrcv5
-from samsrcv5.fiducials import convert_json_fids_to_head
-from samsrcv5.launcher import _native_path
-from samsrcv5.normalize import _tail_sd, _view
+import samsrc
+from samsrc.fiducials import convert_json_fids_to_head
+from samsrc.launcher import _native_path
+from samsrc.normalize import _tail_sd, _view
 
 
 def run(command: str, *args: str, input_text: str | None = None):
@@ -36,9 +37,10 @@ def run(command: str, *args: str, input_text: str | None = None):
 
 
 def test_metadata_and_resources() -> None:
-    assert samsrcv5.__version__ == "5.1.0"
+    assert samsrc.__version__ == "5.1.0"
     assert importlib.metadata.version("samsrc") == "5.1.0"
-    root = importlib.resources.files("samsrcv5")
+    assert importlib.util.find_spec("samsrcv5") is None
+    root = importlib.resources.files("samsrc")
     for relative in (
         "data/master+orig.HEAD",
         "data/master+orig.BRIK.gz",
@@ -47,7 +49,7 @@ def test_metadata_and_resources() -> None:
     ):
         assert root.joinpath(relative).is_file(), relative
     if os.name == "nt":
-        package_dir = Path(samsrcv5.__file__).resolve().parent
+        package_dir = Path(samsrc.__file__).resolve().parent
         dll_dir = package_dir.parent / "samsrc.libs"
         assert dll_dir.is_dir()
         assert any(dll_dir.glob("*.dll"))
@@ -57,7 +59,7 @@ def test_optional_mne_interface_is_installed() -> None:
     import mne
     import numpy as np
 
-    from samsrcv5.mne import SAMNoise, estimate_sam_noise
+    from samsrc.mne import SAMNoise, estimate_sam_noise
 
     names = [f"MEG{index:03d}" for index in range(6)]
     covariance = mne.Covariance(
@@ -123,7 +125,7 @@ def test_1dstats_round_trip() -> None:
 
 
 def test_windows_native_path_includes_repaired_dlls(tmp_path: Path) -> None:
-    executable = tmp_path / "site-packages/samsrcv5/_bin/sam_wts.exe"
+    executable = tmp_path / "site-packages/samsrc/_bin/sam_wts.exe"
     executable.parent.mkdir(parents=True)
     dll_dir = tmp_path / "site-packages/samsrc.libs"
     dll_dir.mkdir()

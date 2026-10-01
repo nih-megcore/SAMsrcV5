@@ -1,4 +1,4 @@
-"""Python launchers and resources for SAMsrcV5."""
+"""Python launchers and resources for samsrc."""
 
 from importlib.metadata import PackageNotFoundError, version
 

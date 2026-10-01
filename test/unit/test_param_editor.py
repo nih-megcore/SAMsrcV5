@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from samsrcv5.param_editor import (
+from samsrc.param_editor import (
     SPEC_BY_KEY,
     ParameterDocument,
     canonical_key,
@@ -121,6 +121,6 @@ def test_save_root_is_created_under_home(tmp_path: Path) -> None:
 
 
 def test_gui_module_import_does_not_require_a_display() -> None:
-    from samsrcv5 import param_gui
+    from samsrc import param_gui
 
     assert callable(param_gui.main)

@@ -41,12 +41,12 @@ rebuild_install_wheel:
 	@set -euo pipefail; \
 	version="$$(awk -F '"' '/^version[[:space:]]*=/ { print $$2; exit }' pyproject.toml)"; \
 	if [[ -z "$$version" ]]; then \
-		echo "Could not determine the samsrcv5 version from pyproject.toml" >&2; \
+		echo "Could not determine the samsrc version from pyproject.toml" >&2; \
 		exit 1; \
 	fi; \
 	python_executable="$$(python -c 'import sys; print(sys.executable)')"; \
 	echo "Using Python: $$python_executable"; \
-	echo "Current samsrcv5 version: $$version"; \
+	echo "Current samsrc version: $$version"; \
 	shopt -s nullglob; \
 	wheels=(dist/samsrc-"$$version"-*.whl); \
 	if (( $${#wheels[@]} > 0 )); then \
@@ -65,7 +65,7 @@ rebuild_install_wheel:
 		echo "Removing current-version wheel(s)..."; \
 		rm -f -- "$${wheels[@]}"; \
 	fi; \
-	echo "Building samsrcv5 $$version wheel..."; \
+	echo "Building samsrc $$version wheel..."; \
 	python -m build --wheel; \
 	wheels=(dist/samsrc-"$$version"-*.whl); \
 	if (( $${#wheels[@]} != 1 )); then \

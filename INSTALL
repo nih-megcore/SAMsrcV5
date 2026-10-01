@@ -8,11 +8,11 @@ and architecture:
 
     python -m venv .venv
     . .venv/bin/activate
-    python -m pip install samsrcv5
+    python -m pip install samsrc
 
 On Windows, activate with `.venv\Scripts\activate`. A wheel installation does
 not require Make, a compiler, GSL, or FFTW. Until artifacts are published to
-PyPI, give pip the downloaded `.whl` filename instead of `samsrcv5`.
+PyPI, give pip the downloaded `.whl` filename instead of `samsrc`.
 
 AFNI, FreeSurfer, and qhull are external applications and are not distributed
 in the wheel. ROIbuilder also requires a system GTK3/PyGObject installation.

@@ -42,7 +42,7 @@ outside the checkout so the installed package cannot be shadowed:
 ```sh
 cd /tmp
 /path/to/venv/bin/python -m pytest \
-    /path/to/SAM2MULTI/test/wheel -q --import-mode=importlib
+    /path/to/SAMsrcV5/test/wheel -q --import-mode=importlib
 ```
 
 ## AFNI and CTF integration layer

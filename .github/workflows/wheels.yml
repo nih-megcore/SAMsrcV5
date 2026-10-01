@@ -148,7 +148,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: samsrcv5-${{ matrix.name }}
+          name: samsrc-${{ matrix.name }}
           path: wheelhouse/*.whl
           if-no-files-found: warn
           retention-days: 14
@@ -176,7 +176,7 @@ jobs:
       - name: Upload source artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: samsrcv5-corresponding-source
+          name: samsrc-corresponding-source
           path: |
             dist/*.tar.gz
             corresponding-source/*.tar.gz

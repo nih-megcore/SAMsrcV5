@@ -193,7 +193,7 @@ function(sam_add_program target source output_name)
   if(MINGW)
     target_link_options(${target} PRIVATE -static-libgcc)
   endif()
-  install(TARGETS ${target} RUNTIME DESTINATION samsrcv5/_bin COMPONENT python)
+  install(TARGETS ${target} RUNTIME DESTINATION samsrc/_bin COMPONENT python)
 endfunction()
 
 sam_add_program(sam_cov Mains/SAMcov/SAMcov.c sam_cov)
@@ -212,7 +212,7 @@ target_compile_features(stats_1d PRIVATE c_std_17)
 if(NOT WIN32)
   target_link_libraries(stats_1d PRIVATE m)
 endif()
-install(TARGETS stats_1d RUNTIME DESTINATION samsrcv5/_bin COMPONENT python)
+install(TARGETS stats_1d RUNTIME DESTINATION samsrc/_bin COMPONENT python)
 
 add_executable(meshnorm
   Mains/orthohull/meshnorm.c
@@ -224,7 +224,7 @@ target_include_directories(meshnorm PRIVATE Mains/orthohull)
 if(NOT WIN32)
   target_link_libraries(meshnorm PRIVATE m)
 endif()
-install(TARGETS meshnorm RUNTIME DESTINATION samsrcv5/_bin COMPONENT python)
+install(TARGETS meshnorm RUNTIME DESTINATION samsrc/_bin COMPONENT python)
 
 set(SAM_LEGACY_PYTHON
   Mains/FSnormals/FSnormals.py
@@ -237,25 +237,25 @@ set(SAM_LEGACY_PYTHON
   Mains/orthohull/samutil.py
   Mains/orthohull/thd_atr.py
 )
-install(FILES ${SAM_LEGACY_PYTHON} DESTINATION samsrcv5/_legacy COMPONENT python)
+install(FILES ${SAM_LEGACY_PYTHON} DESTINATION samsrc/_legacy COMPONENT python)
 install(FILES Mains/orthohull/ply2fid
-  DESTINATION samsrcv5/_legacy RENAME ply2fid.py COMPONENT python)
+  DESTINATION samsrc/_legacy RENAME ply2fid.py COMPONENT python)
 install(FILES Mains/ROIbuilder/ROIbuilder
-  DESTINATION samsrcv5/_legacy RENAME ROIbuilder.py COMPONENT python)
+  DESTINATION samsrc/_legacy RENAME ROIbuilder.py COMPONENT python)
 install(FILES
   Mains/orthohull/master+orig.BRIK.gz
   Mains/orthohull/master+orig.HEAD
   Mains/orthohull/null.tag
   Mains/ROIbuilder/ROIbuilder.ui
   Mains/ROIbuilder/SessionAtlases.niml
-  DESTINATION samsrcv5/data COMPONENT python
+  DESTINATION samsrc/data COMPONENT python
 )
 install(FILES LICENSE LICENSE.package THIRD_PARTY_NOTICES.md
-  DESTINATION samsrcv5/licenses COMPONENT python)
+  DESTINATION samsrc/licenses COMPONENT python)
 install(FILES
-  "${SAM_DEPS_ROOT}/share/samsrcv5-licenses/GSL-GPL-3.0.txt"
-  "${SAM_DEPS_ROOT}/share/samsrcv5-licenses/FFTW-GPL-2.0-or-later.txt"
-  DESTINATION samsrcv5/licenses COMPONENT python OPTIONAL
+  "${SAM_DEPS_ROOT}/share/samsrc-licenses/GSL-GPL-3.0.txt"
+  "${SAM_DEPS_ROOT}/share/samsrc-licenses/FFTW-GPL-2.0-or-later.txt"
+  DESTINATION samsrc/licenses COMPONENT python OPTIONAL
 )
 
 if(SAM_BUILD_TESTING)
@@ -267,5 +267,5 @@ if(SAM_BUILD_TESTING)
   add_executable(sam_inspect_ctf test/integration/inspect_ctf.c)
   target_include_directories(sam_inspect_ctf PRIVATE "${PROJECT_SOURCE_DIR}/include")
   target_link_libraries(sam_inspect_ctf PRIVATE samcore)
-  install(TARGETS sam_inspect_ctf RUNTIME DESTINATION samsrcv5/_bin COMPONENT python)
+  install(TARGETS sam_inspect_ctf RUNTIME DESTINATION samsrc/_bin COMPONENT python)
 endif()

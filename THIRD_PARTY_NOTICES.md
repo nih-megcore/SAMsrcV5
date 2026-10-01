@@ -1,6 +1,6 @@
 # Third-party notices
 
-SAMsrcV5 wheels contain statically linked copies of the following libraries:
+The `samsrc` wheels contain statically linked copies of the following libraries:
 
 - GNU Scientific Library (GSL) 2.8, licensed under GPL-3.0-or-later.
   Source: <https://ftp.gnu.org/gnu/gsl/gsl-2.8.tar.gz>

@@ -27,8 +27,8 @@ tar -xzf "${SAM_DEPS_CACHE}/gsl-2.8.tar.gz" -C "${WORK_DIR}"
         CFLAGS="${CFLAGS:--O2} ${PIC_FLAG}"
     make -j"${JOBS}"
     make install
-    mkdir -p "${SAM_DEPS_PREFIX}/share/samsrcv5-licenses"
-    cp COPYING "${SAM_DEPS_PREFIX}/share/samsrcv5-licenses/GSL-GPL-3.0.txt"
+    mkdir -p "${SAM_DEPS_PREFIX}/share/samsrc-licenses"
+    cp COPYING "${SAM_DEPS_PREFIX}/share/samsrc-licenses/GSL-GPL-3.0.txt"
 )
 
 tar -xzf "${SAM_DEPS_CACHE}/fftw-3.3.11.tar.gz" -C "${WORK_DIR}"
@@ -42,6 +42,6 @@ tar -xzf "${SAM_DEPS_CACHE}/fftw-3.3.11.tar.gz" -C "${WORK_DIR}"
         CFLAGS="${CFLAGS:--O2} ${PIC_FLAG}"
     make -j"${JOBS}"
     make install
-    mkdir -p "${SAM_DEPS_PREFIX}/share/samsrcv5-licenses"
-    cp COPYING "${SAM_DEPS_PREFIX}/share/samsrcv5-licenses/FFTW-GPL-2.0-or-later.txt"
+    mkdir -p "${SAM_DEPS_PREFIX}/share/samsrc-licenses"
+    cp COPYING "${SAM_DEPS_PREFIX}/share/samsrc-licenses/FFTW-GPL-2.0-or-later.txt"
 )

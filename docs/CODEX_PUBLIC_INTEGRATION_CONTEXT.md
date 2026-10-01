@@ -28,7 +28,7 @@ SHA and report that SHA in the final result.
   the start of the portable conversion).
 - Never replace or advance this baseline to a newer public commit.
 - The portable target is the currently checked-out branch containing
-  `pyproject.toml`, `CMakeLists.txt`, `src/samsrcv5`, and the split SAM
+  `pyproject.toml`, `CMakeLists.txt`, `src/samsrc`, and the split SAM
   input/output implementation. At the time this context was written, that
   branch is `convert2multiOS`.
 - The incoming change set is always defined first as the semantic difference
@@ -141,8 +141,8 @@ A native command is not integrated merely because its source compiles with
 Make. For every new or newly supported executable:
 
 1. Add an explicit CMake target linked to `samcore` and any required libraries.
-2. Install the executable into `samsrcv5/_bin` through CMake.
-3. Add a launcher function in `src/samsrcv5/launcher.py` using the existing
+2. Install the executable into `samsrc/_bin` through CMake.
+3. Add a launcher function in `src/samsrc/launcher.py` using the existing
    `_native` mechanism, including Windows `.exe` and repaired-DLL lookup.
 4. Add the public command name to `[project.scripts]` in `pyproject.toml`.
 5. Preserve established command names and intentional `.py` aliases.
@@ -153,7 +153,7 @@ Do not expose a command only through a repository-local `bin/` directory.
 
 ### Python code and legacy scripts
 
-- Prefer a maintained module under `src/samsrcv5` for new Python functionality.
+- Prefer a maintained module under `src/samsrc` for new Python functionality.
   Keep a script under packaged `_legacy` only when its existing script-style
   imports and behavior make that the safer compatibility choice.
 - Register user-facing commands in `[project.scripts]`; do not depend on Make
@@ -174,7 +174,7 @@ Do not expose a command only through a repository-local `bin/` directory.
 ### Package data
 
 - Explicitly install new templates, UI files, atlases, or other runtime assets
-  into `samsrcv5/data` in `CMakeLists.txt`.
+  into `samsrc/data` in `CMakeLists.txt`.
 - Access those assets through the installed package. A wheel test must assert
   that each required asset exists and, when practical, can be opened.
 - Include all required source paths in the sdist configuration. Verify both a
@@ -336,4 +336,4 @@ Conclude each integration with a concise report containing:
 
 Do not describe a legacy patch as integrated merely because it applies or
 compiles. The measure of completion is equivalent intended behavior delivered
-through the pip-installable, cross-platform SAMsrcV5 package.
+through the pip-installable, cross-platform `samsrc` package.

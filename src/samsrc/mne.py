@@ -21,7 +21,7 @@ try:
     from mne.proj import make_projector
 except ModuleNotFoundError as error:  # pragma: no cover - exercised without extra
     raise ModuleNotFoundError(
-        "The samsrcv5 MNE interface requires the optional dependency; "
+        "The samsrc MNE interface requires the optional dependency; "
         "install it with 'samsrc[mne]'."
     ) from error
 

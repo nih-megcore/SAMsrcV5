@@ -15,7 +15,7 @@ podman build --tag afni:latest --file afni-binaries.Dockerfile .
 
 This is available on ghcr.io/jstout211/afni:latest
 
-`test.Dockerfile` extends that image with SAM2MULTI's build and Python test
+`test.Dockerfile` extends that image with SAMsrcV5's build and Python test
 dependencies. Normally it should be invoked through `../run-container-tests.sh`:
 
 ```sh

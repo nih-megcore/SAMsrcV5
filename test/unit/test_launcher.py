@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from samsrcv5 import fiducials, launcher
+from samsrc import fiducials, launcher
 
 
 pytestmark = pytest.mark.unit

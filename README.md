@@ -14,14 +14,15 @@ https://megcore.nih.gov/index.php?title=Source_Localization_-_SAM
 
 ## Installation
 
-SAMsrcV5 5.1.0 is packaged as a platform wheel containing the compiled SAM
-programs and their FFTW/GSL runtime code. Installing a wheel does not require a
-C compiler, Make, FFTW, or GSL on the user's computer:
+SAMsrcV5 5.1.0 is distributed on Python as `samsrc` and packaged as a platform
+wheel containing the compiled SAM programs and their FFTW/GSL runtime code.
+Installing a wheel does not require a C compiler, Make, FFTW, or GSL on the
+user's computer:
 
 ```sh
 python -m venv .venv
 . .venv/bin/activate                # Windows: .venv\Scripts\activate
-python -m pip install samsrcv5
+python -m pip install samsrc
 ```
 
 Until the wheel artifacts are published to PyPI, download the wheel matching
@@ -62,7 +63,7 @@ input NIfTI before conversion to AFNI's LPS coordinates. The command requires
 AFNI's `3dcopy` on `PATH`. The same operation is available from Python:
 
 ```python
-from samsrcv5.fiducials import convert_json_fids_to_head
+from samsrc.fiducials import convert_json_fids_to_head
 
 brik, head = convert_json_fids_to_head("sub-01_T1w.nii.gz")
 ```
@@ -133,7 +134,7 @@ behavior; when it is omitted, the data covariance is used for both operations.
 ```python
 import mne
 
-from samsrcv5.mne import estimate_sam_noise, make_sam_beamformer
+from samsrc.mne import estimate_sam_noise, make_sam_beamformer
 
 data_noise = estimate_sam_noise(data_cov, bandwidth_hz=65.0)
 orient_noise = estimate_sam_noise(orient_cov, bandwidth_hz=65.0)

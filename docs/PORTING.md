@@ -6,10 +6,10 @@ with pip only unpacks Python files, data, launchers, and prebuilt executables.
 
 | Component | Original project | Portable package | Action |
 | --- | --- | --- | --- |
-| Python tools | Scripts installed from `Mains/` by Make | `samsrcv5._legacy` plus console entry points | Preserve command names and resolve data relative to the installed package |
-| Native programs | Make targets in `Mains/` | Executables in `samsrcv5/_bin` | Build explicitly listed sources with CMake and invoke them through Python launchers |
+| Python tools | Scripts installed from `Mains/` by Make | `samsrc._legacy` plus console entry points | Preserve command names and resolve data relative to the installed package |
+| Native programs | Make targets in `Mains/` | Executables in `samsrc/_bin` | Build explicitly listed sources with CMake and invoke them through Python launchers |
 | Native libraries | Host GSL and FFTW installations | GSL 2.8 and FFTW 3.3.11 statically linked in CI | Download pinned sources, verify SHA-512, and retain corresponding source artifacts |
-| Package data | Make copy/install rules | `samsrcv5/data` | Install AFNI templates, GTK UI, and atlas data explicitly |
+| Package data | Make copy/install rules | `samsrc/data` | Install AFNI templates, GTK UI, and atlas data explicitly |
 | CLI surface | Programs and `.py` scripts on `PATH` | `[project.scripts]` | Preserve the supported Make-default command set and common `.py` aliases |
 | Tests | Make unit tests and AFNI/CTF pipeline | Existing tests plus installed-wheel tests | Test repaired wheels outside the checkout on every target platform |
 
